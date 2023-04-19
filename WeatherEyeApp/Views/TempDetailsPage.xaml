@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage 
+             xmlns:microcharts="clr-namespace:Microcharts.Forms;assembly=Microcharts.Forms"
+             xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="WeatherEyeApp.Views.TempDetailsPage"
+             Title="{Binding Title}"
+             xmlns:local="clr-namespace:WeatherEyeApp.ViewModels"  
+             xmlns:forms="clr-namespace:Microcharts.Forms;assembly=Microcharts.Forms"
+             xmlns:model="clr-namespace:WeatherEyeApp.Models" x:DataType="local:TempDetailsViewModel"
+             x:Name="TemperatureDetailsPage">
+    
+    <!--
+      x:DataType enables compiled bindings for better performance and compile time validation of binding expressions.
+      https://docs.microsoft.com/xamarin/xamarin-forms/app-fundamentals/data-binding/compiled-bindings
+    -->
+    
+    <StackLayout>
+        <Label Text="Temperature" FontSize="14" /> 
+        <microcharts:ChartView Chart="{Binding TempChart}" HeightRequest="150" />
+    </StackLayout>
+</ContentPage>
