@@ -6,9 +6,7 @@
              x:Class="WeatherEyeApp.Views.TempDetailsPage"
              Title="{Binding Title}"
              xmlns:local="clr-namespace:WeatherEyeApp.ViewModels"  
-             xmlns:forms="clr-namespace:Microcharts.Forms;assembly=Microcharts.Forms"
-             xmlns:model="clr-namespace:WeatherEyeApp.Models" x:DataType="local:TempDetailsViewModel"
-             x:Name="TemperatureDetailsPage">
+             xmlns:model="clr-namespace:WeatherEyeApp.Models" x:DataType="local:TempDetailsViewModel">
     
     <!--
       x:DataType enables compiled bindings for better performance and compile time validation of binding expressions.
@@ -16,7 +14,15 @@
     -->
     
     <StackLayout>
-        <Label Text="Temperature" FontSize="14" /> 
-        <microcharts:ChartView Chart="{Binding TempChart}" HeightRequest="150" />
+
+        <StackLayout Padding="10">
+            <Label Text="Light" FontSize="14" />
+            <microcharts:ChartView Chart="{Binding LightChart}" HeightRequest="250" />
+        </StackLayout>
+        <StackLayout Padding="10">
+            <Label Text="Temperature" FontSize="14" />
+            <microcharts:ChartView Chart="{Binding TempChart}" HeightRequest="250" />
+        </StackLayout>
+        
     </StackLayout>
 </ContentPage>

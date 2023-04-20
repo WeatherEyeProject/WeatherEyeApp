@@ -18,14 +18,14 @@ namespace WeatherEyeApp.ViewModels
         public Command LoadItemsCommand { get; }
         public Command AddItemCommand { get; }
         public Command<Item> ItemTapped { get; }
-        public List<ChartEntry> Temperatures { get; }
+       // public List<ChartEntry> Temperatures { get; }
         public Chart TempChart { get; private set; }
 
         public ItemsViewModel()
         {
             Title = "Archive";
             Items = new ObservableCollection<Item>();
-            Temperatures = new List<ChartEntry>();
+            //Temperatures = new List<ChartEntry>();
             
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
 
@@ -58,48 +58,7 @@ namespace WeatherEyeApp.ViewModels
                 IsBusy = false;
             }
 
-            try
-            {
-                Temperatures.Clear();
-                var temps = await TempData.GetItemsAsync(true);
-                foreach (var temp in temps)
-                {
-                    Temperatures.Add(new ChartEntry((float)temp.Temp)
-                    {
-                        Label = temp.DateOfReading.ToString(),
-                        ValueLabel = temp.Temp.ToString(),
-                        Color = SkiaSharp.SKColor.Parse("#77d065")
-                    });
-                }
-
-                TempChart = new LineChart()
-                {
-                    Entries = Temperatures
-                };
-
-
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            }
-            //var temps = await TempData.GetItemsAsync(true);
-            /*
-            foreach (var temp in temps)
-            {
-                Temperatures.Add(new ChartEntry((float)temp.Temp)
-                {
-                    Label = temp.DateOfReading.ToString(),
-                    ValueLabel = temp.Temp.ToString(),
-                    Color = SkiaSharp.SKColor.Parse("#77d065")
-                });
-            }
-
-            //TempChart = new LineChart()
-            //{
-            //    Entries = Temperatures
-           // };
-            */
+            
         }
 
         public void OnAppearing()

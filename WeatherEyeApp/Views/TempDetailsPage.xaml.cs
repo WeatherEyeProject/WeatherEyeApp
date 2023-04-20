@@ -16,7 +16,8 @@ namespace WeatherEyeApp.Views
     public partial class TempDetailsPage : ContentPage
     {
         TempDetailsViewModel _viewModel;
-        //public Chart TempChart;
+        public Chart TempChart;
+        public Chart LightChart;
 
         public TempDetailsPage()
         {
@@ -24,10 +25,11 @@ namespace WeatherEyeApp.Views
             
             BindingContext = _viewModel = new TempDetailsViewModel();
 
-            //TempChart.Chart ;
+            TempChart = _viewModel.TempChart;
+            LightChart = _viewModel.LightChart;
         }
 
-        public object TempChart { get; }
+        //public object TempChart { get; }
 
         protected override void OnAppearing()
         {
