@@ -26,7 +26,7 @@ namespace WeatherEyeApp.Views
             BindingContext = _viewModel = new TempDetailsViewModel();
 
             TempChart = _viewModel.TempChart;
-            LightChart = _viewModel.LightChart;
+            //LightChart = _viewModel.LightChart;
         }
 
         //public object TempChart { get; }

@@ -1,6 +1,7 @@
 ﻿using Microcharts;
 using SkiaSharp;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WeatherEyeApp.Models;
 using Xamarin.Forms;
+using WeatherEyeApp.Services;
 
 namespace WeatherEyeApp.ViewModels
 {
@@ -16,18 +18,19 @@ namespace WeatherEyeApp.ViewModels
         public ObservableCollection<TemperatureData> Temperatures { get; }
         public ObservableCollection<TemperatureData> Lights { get; }
         public Command LoadTempsCommand { get; }
-        //public Microcharts.Chart TempChart { get; set; }
         public Chart TempChart { get; set; }
-
-        public Chart LightChart { get; set; }
+        //public Chart LightChart { get; set; }
+        private readonly MockTemps _mockTemps;
 
         public TempDetailsViewModel()
         {
             Title = "Measurements Details";
             Temperatures = new ObservableCollection<TemperatureData>();
             LoadTempsCommand = new Command(async () => await ExecuteLoadTempsCommand());
+            _mockTemps = new MockTemps();
             TempChart = GenerateTempChart();
-            LightChart = GenerateLightChart();
+            
+            //LightChart = GenerateLightChart();
             
         }
         public void OnAppearing()
@@ -42,7 +45,7 @@ namespace WeatherEyeApp.ViewModels
             try
             {
                 Temperatures.Clear();
-                var temps = await TempData.GetItemsAsync(true);
+                var temps = await _mockTemps.GetItemsAsync(true);
                 foreach(var temp in temps)
                 {
                     Temperatures.Add(temp);
@@ -78,10 +81,26 @@ namespace WeatherEyeApp.ViewModels
             GenerateTempChart();
             GenerateLightChart();
         }
+        
         */
-
         private Chart GenerateTempChart()
         {
+            //var temperatures = TempData.GetItemsAsync().Result;
+            var temperatures = _mockTemps.GetItemsAsync().Result;
+
+            var lineChart = new LineChart()
+            {
+                Entries = temperatures.Select(t => new ChartEntry((float)t.Temp) { Label = t.DateOfReading.ToString("dd/MM"), ValueLabel = t.Temp.ToString()+ "°C", Color = SKColor.Parse("#0077C0") }),
+                LineMode = LineMode.Straight,
+                PointMode = PointMode.Circle,
+                LabelTextSize = 40,
+                LabelOrientation = Orientation.Horizontal,
+                ValueLabelOrientation = Orientation.Horizontal
+            };
+
+            return lineChart;
+
+            /*
             var chartData = new List<ChartEntry>();
 
             // Mock database with sample data
@@ -95,7 +114,7 @@ namespace WeatherEyeApp.ViewModels
                 new TemperatureData { Id = Guid.NewGuid().ToString(), Temp = 14.1, DateOfReading = new DateTime(2023, 4, 6) },
                 new TemperatureData { Id = Guid.NewGuid().ToString(), Temp = 10.1, DateOfReading = new DateTime(2023, 4, 7) }
             };
-
+            
             // Iterate through the mock data and add it to the chart data list
             foreach (var tempData in mockData)
             {
@@ -117,11 +136,13 @@ namespace WeatherEyeApp.ViewModels
                 ValueLabelOrientation = Orientation.Horizontal,
                 LabelTextSize = 40
             };
-
+           
 
             return chart;
+             */
         }
 
+        /*
         private Chart GenerateLightChart()
         {
             var chartData = new List<ChartEntry>();
@@ -162,5 +183,6 @@ namespace WeatherEyeApp.ViewModels
 
             return chart;
         }
+        */
     }
 }

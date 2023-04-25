@@ -14,15 +14,17 @@
     -->
     
     <StackLayout>
-
+        <!--
         <StackLayout Padding="10">
             <Label Text="Light" FontSize="14" />
             <microcharts:ChartView Chart="{Binding LightChart}" HeightRequest="250" />
         </StackLayout>
+        -->
+        <RefreshView>
         <StackLayout Padding="10">
             <Label Text="Temperature" FontSize="14" />
             <microcharts:ChartView Chart="{Binding TempChart}" HeightRequest="250" />
         </StackLayout>
-        
+        </RefreshView>
     </StackLayout>
 </ContentPage>

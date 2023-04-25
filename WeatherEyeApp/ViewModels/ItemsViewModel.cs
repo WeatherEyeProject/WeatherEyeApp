@@ -33,7 +33,6 @@ namespace WeatherEyeApp.ViewModels
 
             AddItemCommand = new Command(OnAddItem);
 
-
         }
 
         async Task ExecuteLoadItemsCommand()

@@ -14,12 +14,13 @@ namespace WeatherEyeApp.Services
         {
             items = new List<Item>()
             {
-                new Item { Id = Guid.NewGuid().ToString(), Text = "23.03.2023", Description="Additional info from MockDataBase" },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "24.03.2023", Description="Additional info from MockDataBase" },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "25.03.2023", Description="Additional info from MockDataBase" },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "26.03.2023", Description="Additional info from MockDataBase" },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "27.03.2023", Description="Additional info from MockDataBase" },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "28.03.2023", Description="Additional info from MockDataBase" }
+                new Item { Id = Guid.NewGuid().ToString(), Text = "1.04.2023", Description="Data from 1.04.2023" },
+                new Item { Id = Guid.NewGuid().ToString(), Text = "2.04.2023", Description="Data from 2.04.2023" },
+                new Item { Id = Guid.NewGuid().ToString(), Text = "3.04.2023", Description="Data from 3.04.2023" },
+                new Item { Id = Guid.NewGuid().ToString(), Text = "4.04.2023", Description="Data from 4.04.2023" },
+                new Item { Id = Guid.NewGuid().ToString(), Text = "5.04.2023", Description="Data from 5.04.2023" },
+                new Item { Id = Guid.NewGuid().ToString(), Text = "6.04.2023", Description="Data from 6.04.2023" },
+                new Item { Id = Guid.NewGuid().ToString(), Text = "7.04.2023", Description="Data from 7.04.2023" }
             };
 
         }
