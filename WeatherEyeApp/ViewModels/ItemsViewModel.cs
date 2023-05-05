@@ -18,14 +18,11 @@ namespace WeatherEyeApp.ViewModels
         public Command LoadItemsCommand { get; }
         public Command AddItemCommand { get; }
         public Command<Item> ItemTapped { get; }
-       // public List<ChartEntry> Temperatures { get; }
-        public Chart TempChart { get; private set; }
 
         public ItemsViewModel()
         {
             Title = "Archive";
             Items = new ObservableCollection<Item>();
-            //Temperatures = new List<ChartEntry>();
             
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
 

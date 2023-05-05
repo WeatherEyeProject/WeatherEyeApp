@@ -13,18 +13,20 @@ using Microcharts;
 
 namespace WeatherEyeApp.Views
 {
-    public partial class RainDetailsPage : ContentPage
+    public partial class TempDetailsPage : ContentPage
     {
-        RainDetailsViewModel _viewModel;
-        public Chart RainChart;
+        TempDetailsViewModel _viewModel;
+        public Chart TempChart;
+        public Chart LightChart;
 
-        public RainDetailsPage()
+        public TempDetailsPage()
         {
             InitializeComponent();
             
-            BindingContext = _viewModel = new RainDetailsViewModel();
+            BindingContext = _viewModel = new TempDetailsViewModel();
 
-            RainChart = _viewModel.RainChart;
+            TempChart = _viewModel.TempChart;
+            //LightChart = _viewModel.LightChart;
         }
 
         //public object TempChart { get; }
