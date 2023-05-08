@@ -14,11 +14,16 @@
     -->
 
     <StackLayout>
-        <RefreshView x:DataType="local:RainDetailsViewModel" Command="{Binding LoadRainCommand}" IsRefreshing="{Binding IsBusy, Mode=TwoWay}">
+        <!--<RefreshView x:DataType="local:RainDetailsViewModel" Command="{Binding LoadRainCommand}" IsRefreshing="{Binding IsBusy, Mode=TwoWay}">-->
         <StackLayout Padding="10">
-            <Label Text="Rain" FontSize="20" />
-            <microcharts:ChartView Chart="{Binding RainChart}" HeightRequest="250" />
+            <Label Text="CurrentRain" FontSize="20" TextColor="Blue" HorizontalOptions="Center"/>
+            <Label Text="{Binding CurrentRain}" FontSize="40" TextColor="Blue" HorizontalOptions="Center" />
+            <!--<Label Text="Rain" FontSize="20" />-->
+            <microcharts:ChartView Chart="{Binding RainChart}" HeightRequest="250"/>
+            <DatePicker x:Name="DatePicker1" Format="yyyy-MM-dd" Date="{Binding SelectedDate1}"/>
+            <DatePicker x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
+            <Button Text="Refresh" Command="{Binding LoadRainByDateCommand}" />
         </StackLayout>
-        </RefreshView>
+        <!--</RefreshView>-->
     </StackLayout>
 </ContentPage>

@@ -36,7 +36,7 @@
                         <FormattedString>
                             <FormattedString.Spans>
                                 <Span Text="Prefer PC? Check out: "/>
-                                <Span Text="https://weathereye.com" FontAttributes="Bold"/>
+                                <Span Text="https://weathereye.pl" FontAttributes="Bold"/>
                             </FormattedString.Spans>
                         </FormattedString>
                     </Label.FormattedText>

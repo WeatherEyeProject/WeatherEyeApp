@@ -22,7 +22,6 @@ namespace WeatherEyeApp.Services
                 new Item { Id = Guid.NewGuid().ToString(), Text = "6.04.2023", Description="Data from 6.04.2023" },
                 new Item { Id = Guid.NewGuid().ToString(), Text = "7.04.2023", Description="Data from 7.04.2023" }
             };
-
         }
 
         public async Task<bool> AddItemAsync(Item item)

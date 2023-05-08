@@ -11,19 +11,18 @@ using WeatherEyeApp.Models;
 
 namespace WeatherEyeApp.Services
 {
-    public class RainService : IRainService
+    public class SensorService<T> //: ISensorService<RainData>
     {
         HttpClient client;
-        ObservableCollection<RainData> rainData;
 
-        public RainService()
+        public SensorService()
         {
             client = new HttpClient();
         }
 
-        public async Task<ObservableCollection<RainData>> RefreshDataAsync()
+        public async Task<ObservableCollection<T>> RefreshDataAsync()
         {
-            var WebAPIUrl = "http://weathereye.pl/api/controller";
+            var WebAPIUrl = "http://weathereye.pl/api/RainSensor";
             var uri = new Uri(WebAPIUrl);
             
             try
@@ -33,8 +32,8 @@ namespace WeatherEyeApp.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync(); 
-                    rainData = JsonConvert.DeserializeObject<ObservableCollection<RainData>>(content);
-                    return rainData;
+                    var sensorData = JsonConvert.DeserializeObject<ObservableCollection<T>>(content);
+                    return sensorData;
                 }
             }
             catch (Exception ex)
@@ -44,10 +43,9 @@ namespace WeatherEyeApp.Services
             return null;
         }
 
-        // nie działa, do naprawienia I guess
-        public async Task<ObservableCollection<RainData>> GetRainDataByDateAsync(DateTime date)
+        public async Task<ObservableCollection<T>> GetDataByDateAsync(DateTime date1, DateTime date2)
         {
-            var WebAPIUrl = $"http://weathereye.pl/api/controller?dateOfReading={date:yyyy-MM-dd}";
+            var WebAPIUrl = $"http://weathereye.pl/api/RainSensor/" + date1.ToString("yyyy-MM-dd") + "/" + date2.ToString("yyyy-MM-dd");
             var uri = new Uri(WebAPIUrl);
 
             try
@@ -57,8 +55,8 @@ namespace WeatherEyeApp.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    var rainData = JsonConvert.DeserializeObject<ObservableCollection<RainData>>(content);
-                    return rainData;
+                    var sensorData = JsonConvert.DeserializeObject<ObservableCollection<T>>(content);
+                    return sensorData;
                 }
             }
             catch (Exception ex)

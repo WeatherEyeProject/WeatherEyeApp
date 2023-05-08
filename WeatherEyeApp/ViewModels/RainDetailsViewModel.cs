@@ -16,9 +16,23 @@ namespace WeatherEyeApp.ViewModels
 {
     public class RainDetailsViewModel : BaseViewModel
     {
-        public ObservableCollection<RainData> Rain { get; set; }
-        public Command LoadRainCommand { get; set; }
-        private RainService rainService;
+        public ObservableCollection<RainData> RainDB { get; set; }
+        public Command LoadRainCommand { get; }
+        public Command LoadRainByDateCommand { get; }
+        private SensorService<RainData> rainService;
+        private string currentRain;
+        public string CurrentRain 
+        {
+            get => currentRain;
+            set
+            {
+                if(currentRain != value)
+                {
+                    currentRain = value;
+                    OnPropertyChanged(nameof(CurrentRain));
+                }
+            } 
+        }
         private Chart rainChart;
         public Chart RainChart
         {
@@ -33,24 +47,62 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
+        private DateTime selectedDate1 = DateTime.Now;
+        public DateTime SelectedDate1
+        {
+            get => selectedDate1;
+            set
+            {
+                if (selectedDate1 != value)
+                {
+                    selectedDate1 = value;
+                    OnPropertyChanged(nameof(SelectedDate1));
+                }
+            }
+        }
+
+        private DateTime selectedDate2 = DateTime.Now;
+        public DateTime SelectedDate2
+        {
+            get => selectedDate2;
+            set
+            {
+                if (selectedDate2 != value)
+                {
+                    selectedDate2 = value;
+                    OnPropertyChanged(nameof(SelectedDate2));
+                }
+            }
+        }
+
         public RainDetailsViewModel()
         {
             Title = "Rain Details";
-            rainService = new RainService();
-            Rain = new ObservableCollection<RainData>();
+            rainService = new SensorService<RainData>();
+            RainDB = new ObservableCollection<RainData>();
             LoadRainCommand = new Command(async () => await ExecuteLoadRainCommand());
-            Rain.CollectionChanged += OnRainCollectionChanged;
-            //RainChart = GenerateRainChart();
+            LoadRainByDateCommand = new Command(async () => await ExecuteLoadRainByDateCommand());
+
+            RainDB.CollectionChanged += OnRainCollectionChanged;
+            currentRain = "xD";
         }
 
         private void OnRainCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            RainChart = GenerateRainChart();
+            if(e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                RainChart = null;
+            }
+            else
+            {
+                RainChart = GenerateRainChart();
+            }
         }
 
         public void OnAppearing()
         {
             IsBusy = true;
+            LoadRainCommand.Execute(null);
         }
 
 
@@ -60,13 +112,36 @@ namespace WeatherEyeApp.ViewModels
 
             try
             {
-                Rain.Clear();
+                RainDB.Clear();
                 var temps = await rainService.RefreshDataAsync();
-                //var date = new DateTime(2023, 03, 17);
-                //var temps = await rainService.GetRainDataByDateAsync(date);
                 foreach (var temp in temps)
                 {
-                    Rain.Add(temp);
+                    RainDB.Add(temp);
+                }
+                CurrentRain = RainDB.Select(r => r.Rain).ToList().Last().ToString() + "mm";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        async Task ExecuteLoadRainByDateCommand()
+        {
+            IsBusy = true;
+
+            try
+            {
+                
+                RainDB.Clear();
+                var temps = await rainService.GetDataByDateAsync(selectedDate1, selectedDate2);              
+                foreach (var temp in temps)
+                {
+                    RainDB.Add(temp);
                 }
             }
             catch (Exception ex)
@@ -79,13 +154,11 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
-
         private Chart GenerateRainChart()
         {
-
             var lineChart = new LineChart()
             {
-                Entries = Rain.Select(r => new ChartEntry((float)r.Rain) { Label = r.DateOfReading.ToString("dd/MM"), ValueLabel = r.Rain.ToString() + "mm", Color = SKColor.Parse("#0077C0") }),
+                Entries = RainDB.Select(r => new ChartEntry((float)r.Rain) { Label = r.DateOfReading.ToString("dd/MM"), ValueLabel = r.Rain.ToString() + "mm", Color = SKColor.Parse("#0077C0") }),
                 LineMode = LineMode.Straight,
                 PointMode = PointMode.Circle,
                 LabelTextSize = 40,
