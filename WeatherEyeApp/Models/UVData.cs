@@ -4,11 +4,10 @@ using System.Text;
 
 namespace WeatherEyeApp.Models
 {
-    public class RainData
+    public class UVData
     {
         public int Id { get; set; }
-        public double? Rain { get; set; }
-        public double? IntensityOfRain { get; set; }
+        public double IlluminanceUV { get; set; }
         public DateTime DateOfReading { get; set; }
     }
 }

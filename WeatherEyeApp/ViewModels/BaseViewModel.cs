@@ -11,8 +11,7 @@ namespace WeatherEyeApp.ViewModels
     public class BaseViewModel : INotifyPropertyChanged
     {
         public IDataStore<Item> DataStore => DependencyService.Get<IDataStore<Item>>();
-        public IDataStore<TemperatureData> TempData => DependencyService.Get<IDataStore<TemperatureData>>();
-
+        
         bool isBusy = false;
         public bool IsBusy
         {

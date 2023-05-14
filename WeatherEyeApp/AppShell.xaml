@@ -101,11 +101,11 @@
         you don't want users to be able to navigate away from. If you would like to navigate to this 
         content you can do so by calling 
         await Shell.Current.GoToAsync("//LoginPage");
-    -->
+    
     <TabBar>
         <ShellContent Route="LoginPage" ContentTemplate="{DataTemplate local:LoginPage}" />
     </TabBar>
-
+    -->
     <!-- Optional Templates 
     // These may be provided inline as below or as separate classes.
 

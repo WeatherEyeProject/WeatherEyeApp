@@ -15,15 +15,72 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
+    <RefreshView x:DataType="vm:AboutViewModel" Command="{Binding LoadDataCommand}" IsRefreshing="{Binding IsBusy, Mode=TwoWay}">
+        <ScrollView>
+            <Grid Padding="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <BoxView CornerRadius="15" 
+                         Color="#5bb325" />
+                <Label Text="{Binding CurrentTemp}" 
+                   FontSize="Large"
+                   TextColor="DarkSlateGray"
+                   HorizontalOptions="Center" 
+                   VerticalOptions="Center"/>
+
+                <BoxView CornerRadius="15" 
+                         Grid.Column="1" 
+                     Color="#799eb9"/>
+                <Label Grid.Column="1" 
+                   Text="{Binding CurrentRain}" 
+                   FontSize="Large"
+                   TextColor="DarkSlateGray"
+                   HorizontalOptions="Center" 
+                   VerticalOptions="Center"/>
+
+                <BoxView CornerRadius="15" 
+                         Grid.Row="1" 
+                     Color="#ceedff"/>
+                <Label Grid.Row="1" 
+                   Text="{Binding CurrentPm2_5}" 
+                   FontSize="Large"
+                   TextColor="DarkSlateGray"
+                   HorizontalOptions="Center" 
+                   VerticalOptions="Center"/>
+
+                <BoxView CornerRadius="15" 
+                         Grid.Row="1" 
+                     Grid.Column="1" 
+                     Color="#ffef5f"/>
+                <Label Grid.Row="1" 
+                   Grid.Column="1" Text="{Binding CurrentUV}" 
+                   FontSize="Large"
+                   TextColor="DarkSlateGray"
+                   HorizontalOptions="Center" 
+                   VerticalOptions="Center"/>
+            </Grid>
+        </ScrollView>
+    </RefreshView>
+        <!--
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <ScrollView>
+            
+            
         <StackLayout BackgroundColor="{StaticResource Accent}" VerticalOptions="FillAndExpand" HorizontalOptions="Fill">
             <StackLayout Orientation="Horizontal" HorizontalOptions="Center" VerticalOptions="Center">
                 <ContentView Padding="0,40,0,40" VerticalOptions="FillAndExpand">
-                    <!-- <Image Source="xamarin_logo.png" VerticalOptions="Center" HeightRequest="64" /> -->
+                     <Image Source="xamarin_logo.png" VerticalOptions="Center" HeightRequest="64" /> 
                 </ContentView>
             </StackLayout>
         </StackLayout>
@@ -46,7 +103,9 @@
                         BackgroundColor="OrangeRed"
                         TextColor="White" />
             </StackLayout>
+           
+            
         </ScrollView>
     </Grid>
-
+    -->
 </ContentPage>

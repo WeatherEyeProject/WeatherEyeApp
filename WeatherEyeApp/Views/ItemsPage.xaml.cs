@@ -22,8 +22,6 @@ namespace WeatherEyeApp.Views
             InitializeComponent();
             
             BindingContext = _viewModel = new ItemsViewModel();
-
-            //TempChart.Chart = new LineChart { Entries = _viewModel.Temperatures };
         }
 
         protected override void OnAppearing()
