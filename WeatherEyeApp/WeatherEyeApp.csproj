@@ -14,8 +14,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\LightDetailsPage.xaml.cs">
+      <DependentUpon>LightDetailsPage.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\RainDetailsPage.xaml.cs">
       <DependentUpon>RainDetailsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\AirQualityDetailsPage.xaml.cs">
+      <DependentUpon>AirQualityDetailsPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>

@@ -16,10 +16,13 @@ namespace WeatherEyeApp.ViewModels
 {
     public class RainDetailsViewModel : BaseViewModel
     {
-        public ObservableCollection<RainData> RainDB { get; set; }
+        public ObservableCollection<SensorsData> RainDB { get; set; }
+        //private string discreteRainSensorUrl = "http://weathereye.pl/api/sensors/s11";
+        private string valueRainSensorUrl = "http://weathereye.pl/api/sensors/s10";
         public Command LoadRainCommand { get; }
         public Command LoadRainByDateCommand { get; }
-        private SensorService<RainData> rainService;
+        private SensorService<SensorsData> rainService;
+        private LatestDataSensorService latestService;
         private string currentRain;
         public string CurrentRain 
         {
@@ -78,13 +81,14 @@ namespace WeatherEyeApp.ViewModels
         public RainDetailsViewModel()
         {
             Title = "Rain Details";
-            rainService = new SensorService<RainData>();
-            RainDB = new ObservableCollection<RainData>();
+            rainService = new SensorService<SensorsData>();
+            latestService = new LatestDataSensorService();
+            RainDB = new ObservableCollection<SensorsData>();
             LoadRainCommand = new Command(async () => await ExecuteLoadRainCommand());
             LoadRainByDateCommand = new Command(async () => await ExecuteLoadRainByDateCommand());
 
             RainDB.CollectionChanged += OnRainCollectionChanged;
-            currentRain = "xD";
+            currentRain = "0mm";
         }
 
         private void OnRainCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -113,12 +117,14 @@ namespace WeatherEyeApp.ViewModels
             try
             {
                 RainDB.Clear();
-                var temps = await rainService.RefreshDataAsync();
+                var temps = await rainService.RefreshDataAsync(valueRainSensorUrl);
                 foreach (var temp in temps)
                 {
                     RainDB.Add(temp);
                 }
-                CurrentRain = RainDB.Select(r => r.Rain).ToList().Last().ToString() + "mm";
+                //CurrentRain = RainDB.Select(r => r.value).ToList().Last().ToString() + "mm";
+                var latest = await latestService.RefreshDataAsync();
+                CurrentRain = latest.s10.value.ToString() + "mm";
             }
             catch (Exception ex)
             {
@@ -136,9 +142,8 @@ namespace WeatherEyeApp.ViewModels
 
             try
             {
-                
                 RainDB.Clear();
-                var temps = await rainService.GetDataByDateAsync(selectedDate1, selectedDate2);              
+                var temps = await rainService.GetDataByDateAsync(valueRainSensorUrl, selectedDate1, selectedDate2);              
                 foreach (var temp in temps)
                 {
                     RainDB.Add(temp);
@@ -158,7 +163,7 @@ namespace WeatherEyeApp.ViewModels
         {
             var lineChart = new LineChart()
             {
-                Entries = RainDB.Select(r => new ChartEntry((float)r.Rain) { Label = r.DateOfReading.ToString("dd/MM"), ValueLabel = r.Rain.ToString() + "mm", Color = SKColor.Parse("#0077C0") }),
+                Entries = RainDB.Select(r => new ChartEntry((float)r.value) { Label = r.date.ToString("dd/MM"), ValueLabel = r.value.ToString() + "mm", Color = SKColor.Parse("#0077C0") }),
                 LineMode = LineMode.Straight,
                 PointMode = PointMode.Circle,
                 LabelTextSize = 40,

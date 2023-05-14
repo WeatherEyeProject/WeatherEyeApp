@@ -20,10 +20,10 @@ namespace WeatherEyeApp.Services
             client = new HttpClient();
         }
 
-        public async Task<ObservableCollection<T>> RefreshDataAsync()
+        public async Task<ObservableCollection<T>> RefreshDataAsync(string url)
         {
-            var WebAPIUrl = "http://weathereye.pl/api/RainSensor";
-            var uri = new Uri(WebAPIUrl);
+            //var WebAPIUrl = url;
+            var uri = new Uri(url);
             
             try
             {
@@ -43,9 +43,9 @@ namespace WeatherEyeApp.Services
             return null;
         }
 
-        public async Task<ObservableCollection<T>> GetDataByDateAsync(DateTime date1, DateTime date2)
+        public async Task<ObservableCollection<T>> GetDataByDateAsync(string url, DateTime date1, DateTime date2)
         {
-            var WebAPIUrl = $"http://weathereye.pl/api/RainSensor/" + date1.ToString("yyyy-MM-dd") + "/" + date2.ToString("yyyy-MM-dd");
+            var WebAPIUrl = url + date1.ToString("yyyy-MM-dd") + "/" + date2.ToString("yyyy-MM-dd");
             var uri = new Uri(WebAPIUrl);
 
             try

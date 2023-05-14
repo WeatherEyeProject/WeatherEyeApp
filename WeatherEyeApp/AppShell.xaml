@@ -81,14 +81,17 @@
     <FlyoutItem Title="HelloWeatherEye" Icon="icon_about.png">
         <ShellContent Route="AboutPage" ContentTemplate="{DataTemplate local:AboutPage}" />
     </FlyoutItem>
-    <FlyoutItem Title="Archive" Icon="icon_feed.png">
-        <ShellContent Route="ItemsPage" ContentTemplate="{DataTemplate local:ItemsPage}" />
-    </FlyoutItem>
     <FlyoutItem Title="Temperature Details">
         <ShellContent Route="TempDetailsPage" ContentTemplate="{DataTemplate local:TempDetailsPage}"/>
     </FlyoutItem>
     <FlyoutItem Title="Rain Details">
         <ShellContent Route="RainDetailsPage" ContentTemplate="{DataTemplate local:RainDetailsPage}"/>
+    </FlyoutItem>
+    <FlyoutItem Title="Light Details">
+        <ShellContent Route="LightDetailsPage" ContentTemplate="{DataTemplate local:LightDetailsPage}"/>
+    </FlyoutItem>
+    <FlyoutItem Title="AirQuality Details">
+        <ShellContent Route="AirQualityDetailsPage" ContentTemplate="{DataTemplate local:AirQualityDetailsPage}"/>
     </FlyoutItem>
 
     <!-- When the Flyout is visible this will be a menu item you can tie a click behavior to  

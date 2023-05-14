@@ -13,21 +13,21 @@ using Microcharts;
 
 namespace WeatherEyeApp.Views
 {
-    public partial class AirQualityDetailsPage : ContentPage
+    public partial class TempDetailsPage : ContentPage
     {
-        AirQualityDetailsViewModel _viewModel;
-        public Chart AirQualityChart;
+        TempDetailsViewModel _viewModel;
+        public Chart TempChart;
 
-        public AirQualityDetailsPage()
+        public TempDetailsPage()
         {
             InitializeComponent();
             
-            BindingContext = _viewModel = new AirQualityDetailsViewModel();
+            BindingContext = _viewModel = new TempDetailsViewModel();
 
-            AirQualityChart = _viewModel.AirQualityChart;
+            TempChart = _viewModel.TempChart;
         }
 
-        //public object AirQualityChart { get; }
+        //public object TempChart { get; }
 
         protected override void OnAppearing()
         {

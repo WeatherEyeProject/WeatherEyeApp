@@ -13,15 +13,17 @@ using Microcharts;
 
 namespace WeatherEyeApp.Views
 {
-    public partial class ItemsPage : ContentPage
+    public partial class RainDetailsPage : ContentPage
     {
-        ItemsViewModel _viewModel;
+        RainDetailsViewModel _viewModel;
+ 
 
-        public ItemsPage()
+        public RainDetailsPage()
         {
             InitializeComponent();
             
-            BindingContext = _viewModel = new ItemsViewModel();
+            BindingContext = _viewModel = new RainDetailsViewModel();
+
         }
 
         protected override void OnAppearing()
@@ -29,5 +31,7 @@ namespace WeatherEyeApp.Views
             base.OnAppearing();
             _viewModel.OnAppearing();
         }
+
+        
     }
 }

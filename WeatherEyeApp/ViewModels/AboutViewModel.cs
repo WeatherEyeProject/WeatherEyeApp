@@ -99,10 +99,10 @@ namespace WeatherEyeApp.ViewModels
                 //{
                 //    LatestData.Add(temp);
                 //}
-                CurrentRain = LatestData.rainSensor.Rain.ToString() + "mm";
-                CurrentUV = LatestData.uvSensor.IlluminanceUV.ToString() + "UV";
-                CurrentPm2_5 = LatestData.dustSensor.IntensityPm2_5.ToString() + "µ/m³";
-                CurrentTemp = LatestData.environmentalSensor.Temperature.ToString() + "°C";
+                CurrentRain = LatestData.s11.value.ToString() + "mm";
+                CurrentUV = LatestData.s6.value.ToString() + "UV";
+                CurrentPm2_5 = LatestData.s8.value.ToString() + "µ/m³";
+                CurrentTemp = LatestData.s1.value.ToString() + "°C";
             }
             catch (Exception ex)
             {

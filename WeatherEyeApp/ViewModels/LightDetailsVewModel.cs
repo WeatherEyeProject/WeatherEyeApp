@@ -14,37 +14,38 @@ using System.Collections.Specialized;
 
 namespace WeatherEyeApp.ViewModels
 {
-    public class TempDetailsViewModel : BaseViewModel
+    public class LightDetailsViewModel : BaseViewModel
     {
-        public ObservableCollection<SensorsData> TempDB { get; set; }
-        private string tempSensorUrl = "http://weathereye.pl/api/sensors/s1";
-        public Command LoadTempCommand { get; }
-        public Command LoadTempByDateCommand { get; }
-        private SensorService<SensorsData> tempService;
+        public ObservableCollection<SensorsData> LightDB { get; set; }
+        //private string luxLightSensorUrl = "http://weathereye.pl/api/sensors/s5";
+        private string uvLightSensorUrl = "http://weathereye.pl/api/sensors/s6";
+        public Command LoadLightCommand { get; }
+        public Command LoadLightByDateCommand { get; }
+        private SensorService<SensorsData> lightService;
         private LatestDataSensorService latestService;
-        private string currentTemp;
-        public string CurrentTemp
+        private string currentLight;
+        public string CurrentLight
         {
-            get => currentTemp;
+            get => currentLight;
             set
             {
-                if (currentTemp != value)
+                if (currentLight != value)
                 {
-                    currentTemp = value;
-                    OnPropertyChanged(nameof(CurrentTemp));
+                    currentLight = value;
+                    OnPropertyChanged(nameof(CurrentLight));
                 }
             }
         }
-        private Chart tempChart;
-        public Chart TempChart
+        private Chart lightChart;
+        public Chart LightChart
         {
-            get => tempChart;
+            get => lightChart;
             set
             {
-                if (tempChart != value)
+                if (lightChart != value)
                 {
-                    tempChart = value;
-                    OnPropertyChanged(nameof(TempChart));
+                    lightChart = value;
+                    OnPropertyChanged(nameof(LightChart));
                 }
             }
         }
@@ -77,53 +78,54 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
-        public TempDetailsViewModel()
+        public LightDetailsViewModel()
         {
-            Title = "Temp Details";
-            tempService = new SensorService<SensorsData>();
+            Title = "Light Details";
+            lightService = new SensorService<SensorsData>();
             latestService = new LatestDataSensorService();
-            TempDB = new ObservableCollection<SensorsData>();
-            LoadTempCommand = new Command(async () => await ExecuteLoadTempCommand());
-            LoadTempByDateCommand = new Command(async () => await ExecuteLoadTempByDateCommand());
+            LightDB = new ObservableCollection<SensorsData>();
+            LoadLightCommand = new Command(async () => await ExecuteLoadLightCommand());
+            LoadLightByDateCommand = new Command(async () => await ExecuteLoadLightByDateCommand());
 
-            TempDB.CollectionChanged += OnTempCollectionChanged;
-            currentTemp = "0mm";
+            LightDB.CollectionChanged += OnLightCollectionChanged;
+            currentLight = "0UV";
         }
 
-        private void OnTempCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnLightCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                TempChart = null;
+                LightChart = null;
             }
             else
             {
-                TempChart = GenerateTempChart();
+                LightChart = GenerateLightChart();
             }
         }
 
         public void OnAppearing()
         {
             IsBusy = true;
-            LoadTempCommand.Execute(null);
+            LoadLightCommand.Execute(null);
         }
 
 
-        async Task ExecuteLoadTempCommand()
+        async Task ExecuteLoadLightCommand()
         {
             IsBusy = true;
 
             try
             {
-                TempDB.Clear();
-                var temps = await tempService.RefreshDataAsync(tempSensorUrl);
+                LightDB.Clear();
+                //var temps = await lightService.GetDataByDateAsync(uvLightSensorUrl, selectedDate1, selectedDate2);
+                var temps = await lightService.RefreshDataAsync(uvLightSensorUrl);
                 foreach (var temp in temps)
                 {
-                    TempDB.Add(temp);
+                    LightDB.Add(temp);
                 }
-                //CurrentTemp = TempDB.Select(r => r.value).ToList().Last().ToString() + "mm";
+                //CurrentLight = LightDB.Select(r => r.value).ToList().Last().ToString() + "mm";
                 var latest = await latestService.RefreshDataAsync();
-                CurrentTemp = latest.s10.value.ToString() + "mm";
+                CurrentLight = latest.s10.value.ToString() + "mm";
             }
             catch (Exception ex)
             {
@@ -135,17 +137,17 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
-        async Task ExecuteLoadTempByDateCommand()
+        async Task ExecuteLoadLightByDateCommand()
         {
             IsBusy = true;
 
             try
             {
-                TempDB.Clear();
-                var temps = await tempService.GetDataByDateAsync(tempSensorUrl, selectedDate1, selectedDate2);
+                LightDB.Clear();
+                var temps = await lightService.GetDataByDateAsync(uvLightSensorUrl, selectedDate1, selectedDate2);
                 foreach (var temp in temps)
                 {
-                    TempDB.Add(temp);
+                    LightDB.Add(temp);
                 }
             }
             catch (Exception ex)
@@ -158,11 +160,11 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
-        private Chart GenerateTempChart()
+        private Chart GenerateLightChart()
         {
             var lineChart = new LineChart()
             {
-                Entries = TempDB.Select(r => new ChartEntry((float)r.value) { Label = r.date.ToString("dd/MM"), ValueLabel = r.value.ToString() + "°C", Color = SKColor.Parse("#5bb325") }),
+                Entries = LightDB.Select(r => new ChartEntry((float)r.value) { Label = r.date.ToString("dd/MM"), ValueLabel = r.value.ToString() + "UV", Color = SKColor.Parse("#ffef5f") }),
                 LineMode = LineMode.Straight,
                 PointMode = PointMode.Circle,
                 LabelTextSize = 40,
