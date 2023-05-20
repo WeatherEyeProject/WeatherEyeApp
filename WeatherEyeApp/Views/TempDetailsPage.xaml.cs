@@ -15,7 +15,7 @@ namespace WeatherEyeApp.Views
 {
     public partial class AirQualityDetailsPage : ContentPage
     {
-        AirQualityDetailsViewModel _viewModel;
+        readonly AirQualityDetailsViewModel _viewModel;
         public Chart AirQualityChart;
 
         public AirQualityDetailsPage()

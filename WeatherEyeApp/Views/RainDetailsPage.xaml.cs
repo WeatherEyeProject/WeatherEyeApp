@@ -15,7 +15,7 @@ namespace WeatherEyeApp.Views
 {
     public partial class LightDetailsPage : ContentPage
     {
-        LightDetailsViewModel _viewModel;
+        readonly LightDetailsViewModel _viewModel;
  
 
         public LightDetailsPage()

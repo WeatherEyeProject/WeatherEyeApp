@@ -6,6 +6,7 @@
              x:Class="WeatherEyeApp.Views.AirQualityDetailsPage"
              Title="{Binding Title}"
              xmlns:local="clr-namespace:WeatherEyeApp.ViewModels"  
+             xmlns:oxy="clr-namespace:OxyPlot.Xamarin.Forms;assembly=OxyPlot.Xamarin.Forms"
              xmlns:model="clr-namespace:WeatherEyeApp.Models" x:DataType="local:AirQualityDetailsViewModel">
     
     <!--
@@ -17,8 +18,9 @@
         <RefreshView>
         <StackLayout Padding="10">
             <Label Text="Current Air Quality" FontSize="20" TextColor="#799eb9" HorizontalOptions="Center"/>
-            <Label Text="{Binding CurrentAirQuality}" FontSize="40" TextColor="#799eb9" HorizontalOptions="Center" />
-            <microcharts:ChartView Chart="{Binding AirQualityChart}" HeightRequest="250" />
+            <Label Text="{Binding CurrentAirQualityPm2_5}" FontSize="40" TextColor="#799eb9" HorizontalOptions="Center" />
+            <!--<microcharts:ChartView Chart="{Binding AirQualityChart}" HeightRequest="250" />-->
+            <oxy:PlotView Model="{Binding AirQualityPlotModel}" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="250"/>
             <DatePicker x:Name="DatePicker1" Format="yyyy-MM-dd" Date="{Binding SelectedDate1}"/>
             <DatePicker x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
             <Button Text="Refresh" Command="{Binding LoadAirQualityByDateCommand}" />

@@ -11,27 +11,32 @@ using WeatherEyeApp.Models;
 using Xamarin.Forms;
 using WeatherEyeApp.Services;
 using System.Collections.Specialized;
+using OxyPlot;
+using OxyPlot.Series;
+using OxyPlot.Axes;
 
 namespace WeatherEyeApp.ViewModels
 {
     public class AirQualityDetailsViewModel : BaseViewModel
     {
-        public ObservableCollection<SensorsData> AirQualityDB { get; set; }
-        private string airQualitySensorUrl = "http://weathereye.pl/api/sensors/s8";
+        public ObservableCollection<SensorsData> AirQualityPm2_5 { get; set; }
+        public ObservableCollection<SensorsData> AirQualityPm10 { get; set; }
+        private readonly string airQualityPm2_5SensorUrl = "http://weathereye.pl/api/sensors/s8";
+        private readonly string airQualityPm10SensorUrl = "http://weathereye.pl/api/sensors/s7";
         public Command LoadAirQualityCommand { get; }
         public Command LoadAirQualityByDateCommand { get; }
-        private SensorService<SensorsData> airQualityService;
-        private LatestDataSensorService latestService;
-        private string currentAirQuality;
-        public string CurrentAirQuality
+        private readonly SensorService<SensorsData> airQualityService;
+        private readonly LatestDataSensorService latestService;
+        private string currentAirQualityPm2_5;
+        public string CurrentAirQualityPm2_5
         {
-            get => currentAirQuality;
+            get => currentAirQualityPm2_5;
             set
             {
-                if (currentAirQuality != value)
+                if (currentAirQualityPm2_5 != value)
                 {
-                    currentAirQuality = value;
-                    OnPropertyChanged(nameof(CurrentAirQuality));
+                    currentAirQualityPm2_5 = value;
+                    OnPropertyChanged(nameof(CurrentAirQualityPm2_5));
                 }
             }
         }
@@ -45,6 +50,19 @@ namespace WeatherEyeApp.ViewModels
                 {
                     airQualityChart = value;
                     OnPropertyChanged(nameof(AirQualityChart));
+                }
+            }
+        }
+        private PlotModel airQualityPlotModel;
+        public PlotModel AirQualityPlotModel
+        {
+            get => airQualityPlotModel;
+            set
+            {
+                if(airQualityPlotModel != value)
+                {
+                    airQualityPlotModel = value;
+                    OnPropertyChanged(nameof(AirQualityPlotModel));
                 }
             }
         }
@@ -82,23 +100,26 @@ namespace WeatherEyeApp.ViewModels
             Title = "AirQuality Details";
             airQualityService = new SensorService<SensorsData>();
             latestService = new LatestDataSensorService();
-            AirQualityDB = new ObservableCollection<SensorsData>();
+            AirQualityPm2_5 = new ObservableCollection<SensorsData>();
+            AirQualityPm10 = new ObservableCollection<SensorsData>();
             LoadAirQualityCommand = new Command(async () => await ExecuteLoadAirQualityCommand());
             LoadAirQualityByDateCommand = new Command(async () => await ExecuteLoadAirQualityByDateCommand());
 
-            AirQualityDB.CollectionChanged += OnAirQualityCollectionChanged;
-            currentAirQuality = "0µ/m³";
+            AirQualityPm2_5.CollectionChanged += OnAirQualityCollectionChanged;
+            AirQualityPm10.CollectionChanged += OnAirQualityCollectionChanged;
+            currentAirQualityPm2_5 = "0µ/m³";
         }
 
         private void OnAirQualityCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                AirQualityChart = null;
+                //AirQualityChart = null;
+                AirQualityPlotModel = null;
             }
             else
             {
-                AirQualityChart = GenerateAirQualityChart();
+                AirQualityPlotModel = GenerateLineChart();
             }
         }
 
@@ -115,15 +136,22 @@ namespace WeatherEyeApp.ViewModels
 
             try
             {
-                AirQualityDB.Clear();
-                var airQualitys = await airQualityService.RefreshDataAsync(airQualitySensorUrl);
-                foreach (var airQuality in airQualitys)
+                AirQualityPm2_5.Clear();
+                AirQualityPm10.Clear();
+                var airQualitysPm2_5 = await airQualityService.GetDataByDateAsync(airQualityPm2_5SensorUrl, selectedDate1, selectedDate2);
+                var airQualitysPm10 = await airQualityService.GetDataByDateAsync(airQualityPm10SensorUrl, selectedDate1, selectedDate2);
+                var sortedListPm2_5 = airQualitysPm2_5.OrderBy(aq => aq.date).ToList();
+                var sortedListPm10 = airQualitysPm10.OrderBy(aq => aq.date).ToList();
+                foreach (var airQuality in sortedListPm2_5)
                 {
-                    AirQualityDB.Add(airQuality);
+                    AirQualityPm2_5.Add(airQuality);
                 }
-                //CurrentAirQuality = AirQualityDB.Select(r => r.value).ToList().Last().ToString() + "mm";
+                foreach (var airQuality in sortedListPm10)
+                {
+                    AirQualityPm10.Add(airQuality);
+                }
                 var latest = await latestService.RefreshDataAsync();
-                CurrentAirQuality = latest.s10.value.ToString() + "mm";
+                CurrentAirQualityPm2_5 = latest.s8.value.ToString() + "µ/m³";
             }
             catch (Exception ex)
             {
@@ -141,11 +169,19 @@ namespace WeatherEyeApp.ViewModels
 
             try
             {
-                AirQualityDB.Clear();
-                var airQualitys = await airQualityService.GetDataByDateAsync(airQualitySensorUrl, selectedDate1, selectedDate2);
-                foreach (var airQuality in airQualitys)
+                AirQualityPm2_5.Clear();
+                AirQualityPm10.Clear();
+                var airQualitysPm2_5 = await airQualityService.GetDataByDateAsync(airQualityPm2_5SensorUrl, selectedDate1, selectedDate2);             
+                var airQualitysPm10 = await airQualityService.GetDataByDateAsync(airQualityPm10SensorUrl, selectedDate1, selectedDate2);             
+                var sortedListPm2_5 = airQualitysPm2_5.OrderBy(aq => aq.date).ToList();
+                var sortedListPm10 = airQualitysPm10.OrderBy(aq => aq.date).ToList();
+                foreach (var airQuality in sortedListPm2_5)
                 {
-                    AirQualityDB.Add(airQuality);
+                    AirQualityPm2_5.Add(airQuality);
+                }
+                foreach (var airQuality in sortedListPm10)
+                {
+                    AirQualityPm10.Add(airQuality);
                 }
             }
             catch (Exception ex)
@@ -160,9 +196,10 @@ namespace WeatherEyeApp.ViewModels
 
         private Chart GenerateAirQualityChart()
         {
+            
             var lineChart = new LineChart()
             {
-                Entries = AirQualityDB.Select(r => new ChartEntry((float)r.value) { Label = r.date.ToString("dd/MM"), ValueLabel = r.value.ToString() + "µ/m³", Color = SKColor.Parse("#799eb9") }),
+                Entries = AirQualityPm2_5.Select(r => new ChartEntry((float)r.value) { Label = r.date.ToString("dd/MM"), ValueLabel = r.value.ToString() + "µ/m³", Color = SKColor.Parse("#799eb9") }),
                 LineMode = LineMode.Straight,
                 PointMode = PointMode.Circle,
                 LabelTextSize = 40,
@@ -171,7 +208,47 @@ namespace WeatherEyeApp.ViewModels
             };
 
             return lineChart;
+            
 
+        }
+
+        private PlotModel GenerateLineChart()
+        {
+            var model = new PlotModel();
+            var linePm2_5 = new LineSeries()
+            {
+                Color = OxyColor.Parse("#799eb9"),
+                MarkerType = MarkerType.Circle,
+                SeriesGroupName = "Pm2.5"
+            };
+
+            var linePm10 = new LineSeries()
+            {
+                Color = OxyColor.Parse("#799ef0"),
+                MarkerType = MarkerType.Circle,
+                SeriesGroupName = "Pm10"
+            };
+
+            foreach(var entry in AirQualityPm2_5)
+            {
+                var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double) entry.value);
+                linePm2_5.Points.Add(dataPoint);
+            }
+
+            foreach (var entry in AirQualityPm10)
+            {
+                var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
+                linePm10.Points.Add(dataPoint);
+            }
+
+            model.Series.Add(linePm2_5);
+            model.Series.Add(linePm10);
+
+            model.Axes.Add(new DateTimeAxis { Position = AxisPosition.Bottom, Title = "Date" });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Value" });
+
+
+            return model;
         }
 
     }

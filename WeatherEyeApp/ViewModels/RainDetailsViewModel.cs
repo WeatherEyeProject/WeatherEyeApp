@@ -18,11 +18,11 @@ namespace WeatherEyeApp.ViewModels
     {
         public ObservableCollection<SensorsData> RainDB { get; set; }
         //private string discreteRainSensorUrl = "http://weathereye.pl/api/sensors/s11";
-        private string valueRainSensorUrl = "http://weathereye.pl/api/sensors/s10";
+        private readonly string valueRainSensorUrl = "http://weathereye.pl/api/sensors/s10";
         public Command LoadRainCommand { get; }
         public Command LoadRainByDateCommand { get; }
-        private SensorService<SensorsData> rainService;
-        private LatestDataSensorService latestService;
+        private readonly SensorService<SensorsData> rainService;
+        private readonly LatestDataSensorService latestService;
         private string currentRain;
         public string CurrentRain 
         {

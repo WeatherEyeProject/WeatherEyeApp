@@ -13,7 +13,7 @@ namespace WeatherEyeApp.Services
 {
     public class SensorService<T> //: ISensorService<RainData>
     {
-        HttpClient client;
+        readonly HttpClient client;
 
         public SensorService()
         {
@@ -22,7 +22,6 @@ namespace WeatherEyeApp.Services
 
         public async Task<ObservableCollection<T>> RefreshDataAsync(string url)
         {
-            //var WebAPIUrl = url;
             var uri = new Uri(url);
             
             try
@@ -45,7 +44,7 @@ namespace WeatherEyeApp.Services
 
         public async Task<ObservableCollection<T>> GetDataByDateAsync(string url, DateTime date1, DateTime date2)
         {
-            var WebAPIUrl = url + date1.ToString("yyyy-MM-dd") + "/" + date2.ToString("yyyy-MM-dd");
+            var WebAPIUrl = url + "/" + date1.ToString("yyyy-MM-dd") + "/" + date2.ToString("yyyy-MM-dd");
             var uri = new Uri(WebAPIUrl);
 
             try

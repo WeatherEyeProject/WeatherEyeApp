@@ -12,7 +12,7 @@ namespace WeatherEyeApp.Services
 {
     public class LatestDataSensorService
     {
-        HttpClient client;
+        readonly HttpClient client;
 
         public LatestDataSensorService()
         {

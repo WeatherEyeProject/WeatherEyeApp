@@ -17,11 +17,11 @@ namespace WeatherEyeApp.ViewModels
     public class TempDetailsViewModel : BaseViewModel
     {
         public ObservableCollection<SensorsData> TempDB { get; set; }
-        private string tempSensorUrl = "http://weathereye.pl/api/sensors/s1";
+        private readonly string tempSensorUrl = "http://weathereye.pl/api/sensors/s1";
         public Command LoadTempCommand { get; }
         public Command LoadTempByDateCommand { get; }
-        private SensorService<SensorsData> tempService;
-        private LatestDataSensorService latestService;
+        private readonly SensorService<SensorsData> tempService;
+        private readonly LatestDataSensorService latestService;
         private string currentTemp;
         public string CurrentTemp
         {
@@ -87,7 +87,7 @@ namespace WeatherEyeApp.ViewModels
             LoadTempByDateCommand = new Command(async () => await ExecuteLoadTempByDateCommand());
 
             TempDB.CollectionChanged += OnTempCollectionChanged;
-            currentTemp = "0mm";
+            currentTemp = "0°C";
         }
 
         private void OnTempCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -123,7 +123,7 @@ namespace WeatherEyeApp.ViewModels
                 }
                 //CurrentTemp = TempDB.Select(r => r.value).ToList().Last().ToString() + "mm";
                 var latest = await latestService.RefreshDataAsync();
-                CurrentTemp = latest.s10.value.ToString() + "mm";
+                CurrentTemp = latest.s1.value.ToString() + "°C";
             }
             catch (Exception ex)
             {

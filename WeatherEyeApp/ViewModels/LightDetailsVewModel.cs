@@ -18,11 +18,11 @@ namespace WeatherEyeApp.ViewModels
     {
         public ObservableCollection<SensorsData> LightDB { get; set; }
         //private string luxLightSensorUrl = "http://weathereye.pl/api/sensors/s5";
-        private string uvLightSensorUrl = "http://weathereye.pl/api/sensors/s6";
+        private readonly string uvLightSensorUrl = "http://weathereye.pl/api/sensors/s6";
         public Command LoadLightCommand { get; }
         public Command LoadLightByDateCommand { get; }
-        private SensorService<SensorsData> lightService;
-        private LatestDataSensorService latestService;
+        private readonly SensorService<SensorsData> lightService;
+        private readonly LatestDataSensorService latestService;
         private string currentLight;
         public string CurrentLight
         {
@@ -125,7 +125,7 @@ namespace WeatherEyeApp.ViewModels
                 }
                 //CurrentLight = LightDB.Select(r => r.value).ToList().Last().ToString() + "mm";
                 var latest = await latestService.RefreshDataAsync();
-                CurrentLight = latest.s10.value.ToString() + "mm";
+                CurrentLight = latest.s6.value.ToString() + "UV";
             }
             catch (Exception ex)
             {

@@ -8,7 +8,7 @@ namespace WeatherEyeApp.Views
 {
     public partial class AboutPage : ContentPage
     {
-        AboutViewModel _viewModel;
+        readonly AboutViewModel _viewModel;
         public AboutPage()
         {
             InitializeComponent();

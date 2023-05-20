@@ -15,7 +15,7 @@ namespace WeatherEyeApp.ViewModels
     {
         public LatestData LatestData { get; set; }
         public Command LoadDataCommand { get; }
-        private LatestDataSensorService latestDataService;
+        private readonly LatestDataSensorService latestDataService;
         private string currentTemp = "15*C";
         public string CurrentTemp
         {
