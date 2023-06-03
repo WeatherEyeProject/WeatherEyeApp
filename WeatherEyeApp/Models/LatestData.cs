@@ -6,11 +6,6 @@ namespace WeatherEyeApp.Models
 {
     public class LatestData
     {
-        //public DustData dustSensor;
-        //public EnvironmentalData environmentalSensor;
-        //public LightData lightSensor;
-        //public RainData rainSensor;
-        //public UVData uvSensor;
         public SensorsData s1;  //  TEMPERATURE
         public SensorsData s2;  //  HUMIDITY
         public SensorsData s3;  //  PRESSURE

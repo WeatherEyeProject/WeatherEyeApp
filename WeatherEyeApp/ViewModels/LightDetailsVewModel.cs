@@ -11,41 +11,72 @@ using WeatherEyeApp.Models;
 using Xamarin.Forms;
 using WeatherEyeApp.Services;
 using System.Collections.Specialized;
+using OxyPlot;
+using OxyPlot.Series;
+using OxyPlot.Axes;
 
 namespace WeatherEyeApp.ViewModels
 {
     public class LightDetailsViewModel : BaseViewModel
     {
-        public ObservableCollection<SensorsData> LightDB { get; set; }
-        //private string luxLightSensorUrl = "http://weathereye.pl/api/sensors/s5";
+        public ObservableCollection<SensorsData> LightUVDB { get; set; }
+        public ObservableCollection<SensorsData> LightLuxDB { get; set; }
+        private string luxLightSensorUrl = "http://weathereye.pl/api/sensors/s5";
         private readonly string uvLightSensorUrl = "http://weathereye.pl/api/sensors/s6";
         public Command LoadLightCommand { get; }
         public Command LoadLightByDateCommand { get; }
         private readonly SensorService<SensorsData> lightService;
         private readonly LatestDataSensorService latestService;
-        private string currentLight;
-        public string CurrentLight
+        private string currentLightUV;
+        public string CurrentLightUV
         {
-            get => currentLight;
+            get => currentLightUV;
             set
             {
-                if (currentLight != value)
+                if (currentLightUV != value)
                 {
-                    currentLight = value;
-                    OnPropertyChanged(nameof(CurrentLight));
+                    currentLightUV = value;
+                    OnPropertyChanged(nameof(CurrentLightUV));
                 }
             }
         }
-        private Chart lightChart;
-        public Chart LightChart
+        private string currentLightLux;
+        public string CurrentLightLux
         {
-            get => lightChart;
+            get => currentLightLux;
             set
             {
-                if (lightChart != value)
+                if (currentLightLux != value)
                 {
-                    lightChart = value;
-                    OnPropertyChanged(nameof(LightChart));
+                    currentLightLux = value;
+                    OnPropertyChanged(nameof(CurrentLightLux));
+                }
+            }
+        }
+        private PlotModel lightUVPlotModel;
+        public PlotModel LightUVPlotModel
+        {
+            get => lightUVPlotModel;
+            set
+            {
+                if (lightUVPlotModel != value)
+                {
+                    lightUVPlotModel = value;
+                    OnPropertyChanged(nameof(LightUVPlotModel));
+                }
+            }
+        }
+
+        private PlotModel lightLuxPlotModel;
+        public PlotModel LightLuxPlotModel
+        {
+            get => lightLuxPlotModel;
+            set
+            {
+                if (lightLuxPlotModel != value)
+                {
+                    lightLuxPlotModel = value;
+                    OnPropertyChanged(nameof(LightLuxPlotModel));
                 }
             }
         }
@@ -83,23 +114,28 @@ namespace WeatherEyeApp.ViewModels
             Title = "Light Details";
             lightService = new SensorService<SensorsData>();
             latestService = new LatestDataSensorService();
-            LightDB = new ObservableCollection<SensorsData>();
-            LoadLightCommand = new Command(async () => await ExecuteLoadLightCommand());
+            LightUVDB = new ObservableCollection<SensorsData>();
+            LightLuxDB = new ObservableCollection<SensorsData>();
+            LoadLightCommand = new Command(async () => await ExecuteLoadLightByDateCommand());
             LoadLightByDateCommand = new Command(async () => await ExecuteLoadLightByDateCommand());
 
-            LightDB.CollectionChanged += OnLightCollectionChanged;
-            currentLight = "0UV";
+            LightUVDB.CollectionChanged += OnLightCollectionChanged;
+            LightLuxDB.CollectionChanged += OnLightCollectionChanged;
+            currentLightUV = "0UV";
+            currentLightLux = "0Lux";
         }
 
         private void OnLightCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                LightChart = null;
+                LightUVPlotModel = null;
+                LightLuxPlotModel = null;
             }
             else
             {
-                LightChart = GenerateLightChart();
+                LightUVPlotModel = GenerateLineChart("uv", "#ffef5f");
+                LightLuxPlotModel = GenerateLineChart("lux", "#fcc111");
             }
         }
 
@@ -109,46 +145,29 @@ namespace WeatherEyeApp.ViewModels
             LoadLightCommand.Execute(null);
         }
 
-
-        async Task ExecuteLoadLightCommand()
-        {
-            IsBusy = true;
-
-            try
-            {
-                LightDB.Clear();
-                //var temps = await lightService.GetDataByDateAsync(uvLightSensorUrl, selectedDate1, selectedDate2);
-                var temps = await lightService.RefreshDataAsync(uvLightSensorUrl);
-                foreach (var temp in temps)
-                {
-                    LightDB.Add(temp);
-                }
-                //CurrentLight = LightDB.Select(r => r.value).ToList().Last().ToString() + "mm";
-                var latest = await latestService.RefreshDataAsync();
-                CurrentLight = latest.s6.value.ToString() + "UV";
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            }
-            finally
-            {
-                IsBusy = false;
-            }
-        }
-
         async Task ExecuteLoadLightByDateCommand()
         {
             IsBusy = true;
 
             try
             {
-                LightDB.Clear();
-                var temps = await lightService.GetDataByDateAsync(uvLightSensorUrl, selectedDate1, selectedDate2);
-                foreach (var temp in temps)
+                LightUVDB.Clear();
+                LightLuxDB.Clear();
+                var lightsUV = await lightService.GetDataByDateAsync(uvLightSensorUrl, selectedDate1, selectedDate2);
+                var lightsLux = await lightService.GetDataByDateAsync(luxLightSensorUrl, selectedDate1, selectedDate2);
+                var sortedListUV = lightsUV.OrderBy(aq => aq.date).ToList();
+                var sortedListLux = lightsLux.OrderBy(aq => aq.date).ToList();
+                foreach (var lght in sortedListUV)
                 {
-                    LightDB.Add(temp);
+                    LightUVDB.Add(lght);
                 }
+                foreach (var lght in sortedListLux)
+                {
+                    LightLuxDB.Add(lght);
+                }
+                var latest = await latestService.RefreshDataAsync();
+                CurrentLightUV = latest.s6.value.ToString() + "UV";
+                CurrentLightLux = latest.s5.value.ToString() + "Lux";
             }
             catch (Exception ex)
             {
@@ -160,20 +179,43 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
-        private Chart GenerateLightChart()
+        private PlotModel GenerateLineChart(string lighttype, string color)
         {
-            var lineChart = new LineChart()
+            var model = new PlotModel();
+            var linelight = new LineSeries()
             {
-                Entries = LightDB.Select(r => new ChartEntry((float)r.value) { Label = r.date.ToString("dd/MM"), ValueLabel = r.value.ToString() + "UV", Color = SKColor.Parse("#ffef5f") }),
-                LineMode = LineMode.Straight,
-                PointMode = PointMode.Circle,
-                LabelTextSize = 40,
-                LabelOrientation = Orientation.Horizontal,
-                ValueLabelOrientation = Orientation.Horizontal
+                Color = OxyColor.Parse(color),
+                MarkerType = MarkerType.Circle,
+                SeriesGroupName = "LightUV"
             };
 
-            return lineChart;
+            if(lighttype == "uv")
+            {
+                foreach (var entry in LightUVDB)
+                {
+                    var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
+                    linelight.Points.Add(dataPoint);
+                }
 
+                model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Light UV" });
+            }
+            else
+            {
+                foreach (var entry in LightLuxDB)
+                {
+                    var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
+                    linelight.Points.Add(dataPoint);
+                }
+
+                model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Light Lux" });
+            }
+
+            model.Series.Add(linelight);
+
+            model.Axes.Add(new DateTimeAxis { Position = AxisPosition.Bottom, Title = "Date" });
+
+
+            return model;
         }
 
     }

@@ -5,7 +5,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="WeatherEyeApp.Views.RainDetailsPage"
              Title="{Binding Title}"
-             xmlns:local="clr-namespace:WeatherEyeApp.ViewModels"  
+             xmlns:local="clr-namespace:WeatherEyeApp.ViewModels"      
+             xmlns:oxy="clr-namespace:OxyPlot.Xamarin.Forms;assembly=OxyPlot.Xamarin.Forms"
              xmlns:model="clr-namespace:WeatherEyeApp.Models" x:DataType="local:RainDetailsViewModel">
     
     <!--
@@ -14,16 +15,32 @@
     -->
 
     <StackLayout>
-        <!--<RefreshView x:DataType="local:RainDetailsViewModel" Command="{Binding LoadRainCommand}" IsRefreshing="{Binding IsBusy, Mode=TwoWay}">-->
-        <StackLayout Padding="10">
-            <Label Text="CurrentRain" FontSize="20" TextColor="Blue" HorizontalOptions="Center"/>
-            <Label Text="{Binding CurrentRain}" FontSize="40" TextColor="Blue" HorizontalOptions="Center" />
-            <!--<Label Text="Rain" FontSize="20" />-->
-            <microcharts:ChartView Chart="{Binding RainChart}" HeightRequest="250"/>
-            <DatePicker x:Name="DatePicker1" Format="yyyy-MM-dd" Date="{Binding SelectedDate1}"/>
-            <DatePicker x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
-            <Button Text="Refresh" Command="{Binding LoadRainByDateCommand}" />
-        </StackLayout>
-        <!--</RefreshView>-->
+        <ScrollView>
+            <StackLayout Padding="10">
+                <Label Text="Current Rain" FontSize="20" TextColor="#799eb9" HorizontalOptions="Center"/>
+                <Grid Padding="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="50" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Text="{Binding CurrentRainmm}" FontSize="40" TextColor="#799eb9" HorizontalOptions="Center" />
+                    <Label Grid.Column="1" Text="{Binding CurrentRainDisc}" FontSize="40" TextColor="#ceedff" HorizontalOptions="Center" />
+                    <DatePicker Grid.Row="1" Grid.Column="0" x:Name="DatePicker1" Format="yyyy-MM-dd" Date="{Binding SelectedDate1}"/>
+                    <DatePicker Grid.Row="1" Grid.Column="1" x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
+
+                </Grid>
+
+
+                <Button Text="Refresh" Command="{Binding LoadRainByDateCommand}" BackgroundColor="#799eb9"/>
+
+                <oxy:PlotView Model="{Binding RainmmPlotModel}" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="250"/>
+                <oxy:PlotView Model="{Binding RainDiscPlotModel}" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="250"/>
+            </StackLayout>
+        </ScrollView>
     </StackLayout>
 </ContentPage>

@@ -13,16 +13,16 @@ using Microcharts;
 
 namespace WeatherEyeApp.Views
 {
-    public partial class LightDetailsPage : ContentPage
+    public partial class RainDetailsPage : ContentPage
     {
-        readonly LightDetailsViewModel _viewModel;
+        readonly RainDetailsViewModel _viewModel;
  
 
-        public LightDetailsPage()
+        public RainDetailsPage()
         {
             InitializeComponent();
             
-            BindingContext = _viewModel = new LightDetailsViewModel();
+            BindingContext = _viewModel = new RainDetailsViewModel();
 
         }
 

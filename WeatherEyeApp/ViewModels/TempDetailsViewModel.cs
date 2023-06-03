@@ -11,6 +11,9 @@ using WeatherEyeApp.Models;
 using Xamarin.Forms;
 using WeatherEyeApp.Services;
 using System.Collections.Specialized;
+using OxyPlot;
+using OxyPlot.Series;
+using OxyPlot.Axes;
 
 namespace WeatherEyeApp.ViewModels
 {
@@ -35,16 +38,17 @@ namespace WeatherEyeApp.ViewModels
                 }
             }
         }
-        private Chart tempChart;
-        public Chart TempChart
+
+        private PlotModel tempPlotModel;
+        public PlotModel TempPlotModel
         {
-            get => tempChart;
+            get => tempPlotModel;
             set
             {
-                if (tempChart != value)
+                if (tempPlotModel != value)
                 {
-                    tempChart = value;
-                    OnPropertyChanged(nameof(TempChart));
+                    tempPlotModel = value;
+                    OnPropertyChanged(nameof(TempPlotModel));
                 }
             }
         }
@@ -83,7 +87,7 @@ namespace WeatherEyeApp.ViewModels
             tempService = new SensorService<SensorsData>();
             latestService = new LatestDataSensorService();
             TempDB = new ObservableCollection<SensorsData>();
-            LoadTempCommand = new Command(async () => await ExecuteLoadTempCommand());
+            LoadTempCommand = new Command(async () => await ExecuteLoadTempByDateCommand());
             LoadTempByDateCommand = new Command(async () => await ExecuteLoadTempByDateCommand());
 
             TempDB.CollectionChanged += OnTempCollectionChanged;
@@ -94,11 +98,11 @@ namespace WeatherEyeApp.ViewModels
         {
             if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                TempChart = null;
+                TempPlotModel = null;
             }
             else
             {
-                TempChart = GenerateTempChart();
+                TempPlotModel = GenerateTempChart();
             }
         }
 
@@ -109,19 +113,20 @@ namespace WeatherEyeApp.ViewModels
         }
 
 
-        async Task ExecuteLoadTempCommand()
+
+        async Task ExecuteLoadTempByDateCommand()
         {
             IsBusy = true;
 
             try
             {
                 TempDB.Clear();
-                var temps = await tempService.RefreshDataAsync(tempSensorUrl);
-                foreach (var temp in temps)
+                var temps = await tempService.GetDataByDateAsync(tempSensorUrl, selectedDate1, selectedDate2);
+                var sortedtemps = temps.OrderBy(aq => aq.date).ToList();
+                foreach (var temp in sortedtemps)
                 {
                     TempDB.Add(temp);
                 }
-                //CurrentTemp = TempDB.Select(r => r.value).ToList().Last().ToString() + "mm";
                 var latest = await latestService.RefreshDataAsync();
                 CurrentTemp = latest.s1.value.ToString() + "°C";
             }
@@ -135,42 +140,29 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
-        async Task ExecuteLoadTempByDateCommand()
+        private PlotModel GenerateTempChart()
         {
-            IsBusy = true;
-
-            try
+            var model = new PlotModel();
+            var linePm2_5 = new LineSeries()
             {
-                TempDB.Clear();
-                var temps = await tempService.GetDataByDateAsync(tempSensorUrl, selectedDate1, selectedDate2);
-                foreach (var temp in temps)
-                {
-                    TempDB.Add(temp);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            }
-            finally
-            {
-                IsBusy = false;
-            }
-        }
-
-        private Chart GenerateTempChart()
-        {
-            var lineChart = new LineChart()
-            {
-                Entries = TempDB.Select(r => new ChartEntry((float)r.value) { Label = r.date.ToString("dd/MM"), ValueLabel = r.value.ToString() + "°C", Color = SKColor.Parse("#5bb325") }),
-                LineMode = LineMode.Straight,
-                PointMode = PointMode.Circle,
-                LabelTextSize = 40,
-                LabelOrientation = Orientation.Horizontal,
-                ValueLabelOrientation = Orientation.Horizontal
+                Color = OxyColor.Parse("#d300a0"),
+                MarkerType = MarkerType.Circle,
+                SeriesGroupName = "Temperature"
             };
 
-            return lineChart;
+            foreach (var entry in TempDB)
+            {
+                var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
+                linePm2_5.Points.Add(dataPoint);
+            }
+
+            model.Series.Add(linePm2_5);
+
+            model.Axes.Add(new DateTimeAxis { Position = AxisPosition.Bottom, Title = "Date" });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Temperature °C" });
+
+
+            return model;
 
         }
 

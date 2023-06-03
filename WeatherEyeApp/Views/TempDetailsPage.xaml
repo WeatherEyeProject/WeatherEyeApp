@@ -6,6 +6,7 @@
              x:Class="WeatherEyeApp.Views.TempDetailsPage"
              Title="{Binding Title}"
              xmlns:local="clr-namespace:WeatherEyeApp.ViewModels"  
+             xmlns:oxy="clr-namespace:OxyPlot.Xamarin.Forms;assembly=OxyPlot.Xamarin.Forms"
              xmlns:model="clr-namespace:WeatherEyeApp.Models" x:DataType="local:TempDetailsViewModel">
     
     <!--
@@ -16,12 +17,12 @@
     <StackLayout>
         <RefreshView>
         <StackLayout Padding="10">
-            <Label Text="CurrentTemperature" FontSize="20" TextColor="DarkGreen" HorizontalOptions="Center"/>
-            <Label Text="{Binding CurrentTemp}" FontSize="40" TextColor="DarkGreen" HorizontalOptions="Center" />
-            <microcharts:ChartView Chart="{Binding TempChart}" HeightRequest="250" />
-            <DatePicker x:Name="DatePicker1" Format="yyyy-MM-dd" Date="{Binding SelectedDate1}"/>
+            <Label Text="CurrentTemperature" FontSize="20" TextColor="#ff0071" HorizontalOptions="Center"/>
+                <Label Text="{Binding CurrentTemp}" FontSize="40" TextColor="#d300a0" HorizontalOptions="Center" />
+                <oxy:PlotView Model="{Binding TempPlotModel}" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="250"/>
+                <DatePicker x:Name="DatePicker1" Format="yyyy-MM-dd" Date="{Binding SelectedDate1}"/>
             <DatePicker x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
-            <Button Text="Refresh" Command="{Binding LoadTempByDateCommand}" />
+                <Button Text="Refresh" BackgroundColor="#d300a0" Command="{Binding LoadTempByDateCommand}" />
             </StackLayout>
         </RefreshView>
     </StackLayout>

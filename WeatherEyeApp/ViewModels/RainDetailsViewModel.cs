@@ -11,41 +11,73 @@ using WeatherEyeApp.Models;
 using Xamarin.Forms;
 using WeatherEyeApp.Services;
 using System.Collections.Specialized;
+using OxyPlot;
+using OxyPlot.Series;
+using OxyPlot.Axes;
 
 namespace WeatherEyeApp.ViewModels
 {
     public class RainDetailsViewModel : BaseViewModel
     {
         public ObservableCollection<SensorsData> RainDB { get; set; }
-        //private string discreteRainSensorUrl = "http://weathereye.pl/api/sensors/s11";
+        public ObservableCollection<SensorsData> RainDiscreteDB { get; set; }
+        private string discreteRainSensorUrl = "http://weathereye.pl/api/sensors/s11";
         private readonly string valueRainSensorUrl = "http://weathereye.pl/api/sensors/s10";
         public Command LoadRainCommand { get; }
         public Command LoadRainByDateCommand { get; }
         private readonly SensorService<SensorsData> rainService;
         private readonly LatestDataSensorService latestService;
-        private string currentRain;
-        public string CurrentRain 
+        private string currentRainmm;
+        public string CurrentRainmm 
         {
-            get => currentRain;
+            get => currentRainmm;
             set
             {
-                if(currentRain != value)
+                if(currentRainmm != value)
                 {
-                    currentRain = value;
-                    OnPropertyChanged(nameof(CurrentRain));
+                    currentRainmm = value;
+                    OnPropertyChanged(nameof(CurrentRainmm));
                 }
             } 
         }
-        private Chart rainChart;
-        public Chart RainChart
+        private string currentRainDisc;
+        public string CurrentRainDisc
         {
-            get => rainChart;
+            get => currentRainDisc;
             set
             {
-                if (rainChart != value)
+                if (currentRainDisc != value)
                 {
-                    rainChart = value;
-                    OnPropertyChanged(nameof(RainChart));
+                    currentRainDisc = value;
+                    OnPropertyChanged(nameof(CurrentRainDisc));
+                }
+            }
+        }
+
+        private PlotModel rainmmPlotModel;
+        public PlotModel RainmmPlotModel
+        {
+            get => rainmmPlotModel;
+            set
+            {
+                if (rainmmPlotModel != value)
+                {
+                    rainmmPlotModel = value;
+                    OnPropertyChanged(nameof(RainmmPlotModel));
+                }
+            }
+        }
+
+        private PlotModel rainDiscPlotModel;
+        public PlotModel RainDiscPlotModel
+        {
+            get => rainDiscPlotModel;
+            set
+            {
+                if (rainDiscPlotModel != value)
+                {
+                    rainDiscPlotModel = value;
+                    OnPropertyChanged(nameof(RainDiscPlotModel));
                 }
             }
         }
@@ -84,22 +116,27 @@ namespace WeatherEyeApp.ViewModels
             rainService = new SensorService<SensorsData>();
             latestService = new LatestDataSensorService();
             RainDB = new ObservableCollection<SensorsData>();
-            LoadRainCommand = new Command(async () => await ExecuteLoadRainCommand());
+            RainDiscreteDB = new ObservableCollection<SensorsData>();
+            LoadRainCommand = new Command(async () => await ExecuteLoadRainByDateCommand());
             LoadRainByDateCommand = new Command(async () => await ExecuteLoadRainByDateCommand());
 
             RainDB.CollectionChanged += OnRainCollectionChanged;
-            currentRain = "0mm";
+            RainDiscreteDB.CollectionChanged += OnRainCollectionChanged;
+            currentRainmm = "0mm";
+            currentRainDisc = "0";
         }
 
         private void OnRainCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if(e.Action == NotifyCollectionChangedAction.Reset)
             {
-                RainChart = null;
+                RainmmPlotModel = null;
+                RainDiscPlotModel = null;
             }
             else
             {
-                RainChart = GenerateRainChart();
+                RainmmPlotModel = GenerateRainChart("mm", "#799eb9");
+                RainDiscPlotModel = GenerateRainChart("disc", "#ceedff");
             }
         }
 
@@ -110,32 +147,6 @@ namespace WeatherEyeApp.ViewModels
         }
 
 
-        async Task ExecuteLoadRainCommand()
-        {
-            IsBusy = true;
-
-            try
-            {
-                RainDB.Clear();
-                var temps = await rainService.RefreshDataAsync(valueRainSensorUrl);
-                foreach (var temp in temps)
-                {
-                    RainDB.Add(temp);
-                }
-                //CurrentRain = RainDB.Select(r => r.value).ToList().Last().ToString() + "mm";
-                var latest = await latestService.RefreshDataAsync();
-                CurrentRain = latest.s10.value.ToString() + "mm";
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            }
-            finally
-            {
-                IsBusy = false;
-            }
-        }
-
         async Task ExecuteLoadRainByDateCommand()
         {
             IsBusy = true;
@@ -143,11 +154,22 @@ namespace WeatherEyeApp.ViewModels
             try
             {
                 RainDB.Clear();
-                var temps = await rainService.GetDataByDateAsync(valueRainSensorUrl, selectedDate1, selectedDate2);              
-                foreach (var temp in temps)
+                RainDiscreteDB.Clear();
+                var rainsmm = await rainService.GetDataByDateAsync(valueRainSensorUrl, selectedDate1, selectedDate2);
+                var rainsdisc = await rainService.GetDataByDateAsync(discreteRainSensorUrl, selectedDate1, selectedDate2);
+                var sortedListmm = rainsmm.OrderBy(aq => aq.date).ToList();
+                var sortedListdisc = rainsdisc.OrderBy(aq => aq.date).ToList();
+                foreach (var rain in sortedListmm)
                 {
-                    RainDB.Add(temp);
+                    RainDB.Add(rain);
                 }
+                foreach (var rain in sortedListdisc)
+                {
+                    RainDiscreteDB.Add(rain);
+                }
+                var latest = await latestService.RefreshDataAsync();
+                CurrentRainmm = latest.s10.value.ToString() + "mm";
+                CurrentRainDisc = latest.s11.value.ToString();
             }
             catch (Exception ex)
             {
@@ -159,19 +181,44 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
-        private Chart GenerateRainChart()
+        private PlotModel GenerateRainChart(string raintype, string color)
         {
-            var lineChart = new LineChart()
+            var model = new PlotModel();
+            var linerain = new LineSeries()
             {
-                Entries = RainDB.Select(r => new ChartEntry((float)r.value) { Label = r.date.ToString("dd/MM"), ValueLabel = r.value.ToString() + "mm", Color = SKColor.Parse("#0077C0") }),
-                LineMode = LineMode.Straight,
-                PointMode = PointMode.Circle,
-                LabelTextSize = 40,
-                LabelOrientation = Orientation.Horizontal,
-                ValueLabelOrientation = Orientation.Horizontal
+                Color = OxyColor.Parse(color),
+                MarkerType = MarkerType.Circle,
+                SeriesGroupName = "Rain"
             };
 
-            return lineChart;
+            if (raintype == "mm")
+            {
+                foreach (var entry in RainDB)
+                {
+                    var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
+                    linerain.Points.Add(dataPoint);
+                }
+
+                model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Rain mm" });
+            }
+            else
+            {
+                foreach (var entry in RainDiscreteDB)
+                {
+                    var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
+                    linerain.Points.Add(dataPoint);
+                }
+
+                model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Rain" });
+            }
+
+            model.Series.Add(linerain);
+
+            model.Axes.Add(new DateTimeAxis { Position = AxisPosition.Bottom, Title = "Date" });
+
+
+
+            return model;
 
         }
 

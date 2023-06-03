@@ -92,13 +92,8 @@ namespace WeatherEyeApp.ViewModels
 
             try
             {
-                //LatestData.Clear();
                 var temps = await latestDataService.RefreshDataAsync();
                 LatestData = temps;
-                //foreach (var temp in temps)
-                //{
-                //    LatestData.Add(temp);
-                //}
                 CurrentRain = LatestData.s11.value.ToString() + "mm";
                 CurrentUV = LatestData.s6.value.ToString() + "UV";
                 CurrentPm2_5 = LatestData.s8.value.ToString() + "µ/m³";
