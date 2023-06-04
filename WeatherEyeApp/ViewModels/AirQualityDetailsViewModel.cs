@@ -40,6 +40,19 @@ namespace WeatherEyeApp.ViewModels
                 }
             }
         }
+        private string currentAirQualityPm10;
+        public string CurrentAirQualityPm10
+        {
+            get => currentAirQualityPm10;
+            set
+            {
+                if (currentAirQualityPm10 != value)
+                {
+                    currentAirQualityPm10 = value;
+                    OnPropertyChanged(nameof(CurrentAirQualityPm10));
+                }
+            }
+        }
 
         private PlotModel airQualityPlotModel;
         public PlotModel AirQualityPlotModel
@@ -96,6 +109,7 @@ namespace WeatherEyeApp.ViewModels
             AirQualityPm2_5.CollectionChanged += OnAirQualityCollectionChanged;
             AirQualityPm10.CollectionChanged += OnAirQualityCollectionChanged;
             currentAirQualityPm2_5 = "0µ/m³";
+            currentAirQualityPm10 = "0µ/m³";
         }
 
         private void OnAirQualityCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -122,10 +136,27 @@ namespace WeatherEyeApp.ViewModels
 
             try
             {
+                var latest = await latestService.RefreshDataAsync();
+                if (latest.s8 != null)
+                {
+                    CurrentAirQualityPm2_5 = latest.s8.value.ToString() + "µ/m³";
+                }
+                if (latest.s7 != null)
+                {
+                    CurrentAirQualityPm2_5 = latest.s7.value.ToString() + "µ/m³";
+                }
+
                 AirQualityPm2_5.Clear();
                 AirQualityPm10.Clear();
+
                 var airQualitysPm2_5 = await airQualityService.GetDataByDateAsync(airQualityPm2_5SensorUrl, selectedDate1, selectedDate2);             
-                var airQualitysPm10 = await airQualityService.GetDataByDateAsync(airQualityPm10SensorUrl, selectedDate1, selectedDate2);             
+                var airQualitysPm10 = await airQualityService.GetDataByDateAsync(airQualityPm10SensorUrl, selectedDate1, selectedDate2);       
+                if (airQualitysPm2_5.Count() == 0 || airQualitysPm10.Count() == 0)
+                {
+                    var latestDate = latest.s8.date;
+                    airQualitysPm2_5 = await airQualityService.GetDataByDateAsync(airQualityPm2_5SensorUrl, latestDate, latestDate);
+                    airQualitysPm10 = await airQualityService.GetDataByDateAsync(airQualityPm10SensorUrl, latestDate, latestDate);
+                }
                 var sortedListPm2_5 = airQualitysPm2_5.OrderBy(aq => aq.date).ToList();
                 var sortedListPm10 = airQualitysPm10.OrderBy(aq => aq.date).ToList();
                 foreach (var airQuality in sortedListPm2_5)
@@ -136,8 +167,7 @@ namespace WeatherEyeApp.ViewModels
                 {
                     AirQualityPm10.Add(airQuality);
                 }
-                var latest = await latestService.RefreshDataAsync();
-                CurrentAirQualityPm2_5 = latest.s8.value.ToString() + "µ/m³";
+                
             }
             catch (Exception ex)
             {

@@ -17,30 +17,30 @@ using OxyPlot.Axes;
 
 namespace WeatherEyeApp.ViewModels
 {
-    public class TempDetailsViewModel : BaseViewModel
+    public class HumidityDetailsViewModel : BaseViewModel
     {
-        public ObservableCollection<SensorsData> TempDB { get; set; }
-        private readonly string tempSensorUrl = "http://weathereye.pl/api/sensors/s1";
-        public Command LoadTempCommand { get; }
-        public Command LoadTempByDateCommand { get; }
+        public ObservableCollection<SensorsData> HumidityDB { get; set; }
+        private readonly string tempSensorUrl = "http://weathereye.pl/api/sensors/s2";
+        public Command LoadHumidityCommand { get; }
+        public Command LoadHumidityByDateCommand { get; }
         private readonly SensorService<SensorsData> tempService;
         private readonly LatestDataSensorService latestService;
-        private string currentTemp;
-        public string CurrentTemp
+        private string currentHumidity;
+        public string CurrentHumidity
         {
-            get => currentTemp;
+            get => currentHumidity;
             set
             {
-                if (currentTemp != value)
+                if (currentHumidity != value)
                 {
-                    currentTemp = value;
-                    OnPropertyChanged(nameof(CurrentTemp));
+                    currentHumidity = value;
+                    OnPropertyChanged(nameof(CurrentHumidity));
                 }
             }
         }
 
         private PlotModel tempPlotModel;
-        public PlotModel TempPlotModel
+        public PlotModel HumidityPlotModel
         {
             get => tempPlotModel;
             set
@@ -48,7 +48,7 @@ namespace WeatherEyeApp.ViewModels
                 if (tempPlotModel != value)
                 {
                     tempPlotModel = value;
-                    OnPropertyChanged(nameof(TempPlotModel));
+                    OnPropertyChanged(nameof(HumidityPlotModel));
                 }
             }
         }
@@ -81,62 +81,62 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
-        public TempDetailsViewModel()
+        public HumidityDetailsViewModel()
         {
-            Title = "Temp Details";
+            Title = "Humidity Details";
             tempService = new SensorService<SensorsData>();
             latestService = new LatestDataSensorService();
-            TempDB = new ObservableCollection<SensorsData>();
-            LoadTempCommand = new Command(async () => await ExecuteLoadTempByDateCommand());
-            LoadTempByDateCommand = new Command(async () => await ExecuteLoadTempByDateCommand());
+            HumidityDB = new ObservableCollection<SensorsData>();
+            LoadHumidityCommand = new Command(async () => await ExecuteLoadHumidityByDateCommand());
+            LoadHumidityByDateCommand = new Command(async () => await ExecuteLoadHumidityByDateCommand());
 
-            TempDB.CollectionChanged += OnTempCollectionChanged;
-            currentTemp = "0°C";
+            HumidityDB.CollectionChanged += OnHumidityCollectionChanged;
+            currentHumidity = "0%";
         }
 
-        private void OnTempCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnHumidityCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                TempPlotModel = null;
+                HumidityPlotModel = null;
             }
             else
             {
-                TempPlotModel = GenerateTempChart();
+                HumidityPlotModel = GenerateHumidityChart();
             }
         }
 
         public void OnAppearing()
         {
             IsBusy = true;
-            LoadTempCommand.Execute(null);
+            LoadHumidityCommand.Execute(null);
         }
 
 
 
-        async Task ExecuteLoadTempByDateCommand()
+        async Task ExecuteLoadHumidityByDateCommand()
         {
             IsBusy = true;
 
             try
             {
                 var latest = await latestService.RefreshDataAsync();
-                if (latest.s1 != null)
+                if(latest.s2 != null)
                 {
-                    CurrentTemp = latest.s1.value.ToString() + "°C";
+                    CurrentHumidity = latest.s2.value.ToString() + "%";
                 }
 
-                TempDB.Clear();
+                HumidityDB.Clear();
                 var temps = await tempService.GetDataByDateAsync(tempSensorUrl, selectedDate1, selectedDate2);
                 if(temps.Count() == 0)
                 {
-                    var latestDate = latest.s1.date;
+                    var latestDate = latest.s2.date;
                     temps = await tempService.GetDataByDateAsync(tempSensorUrl, latestDate, latestDate);
                 }
                 var sortedtemps = temps.OrderBy(aq => aq.date).ToList();
                 foreach (var temp in sortedtemps)
                 {
-                    TempDB.Add(temp);
+                    HumidityDB.Add(temp);
                 }
                 
             }
@@ -150,17 +150,17 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
-        private PlotModel GenerateTempChart()
+        private PlotModel GenerateHumidityChart()
         {
             var model = new PlotModel();
             var linePm2_5 = new LineSeries()
             {
-                Color = OxyColor.Parse("#d300a0"),
+                Color = OxyColor.Parse("#799eb9"),
                 MarkerType = MarkerType.Circle,
-                SeriesGroupName = "Temperature"
+                SeriesGroupName = "Humidity"
             };
 
-            foreach (var entry in TempDB)
+            foreach (var entry in HumidityDB)
             {
                 var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
                 linePm2_5.Points.Add(dataPoint);
@@ -169,7 +169,7 @@ namespace WeatherEyeApp.ViewModels
             model.Series.Add(linePm2_5);
 
             model.Axes.Add(new DateTimeAxis { Position = AxisPosition.Bottom, Title = "Date" });
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Temperature °C" });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Humidity %" });
 
 
             return model;

@@ -18,9 +18,9 @@
         <ScrollView>
             <StackLayout Padding="10">
                 <Label Text="Current Rain" FontSize="20" TextColor="#799eb9" HorizontalOptions="Center"/>
+                
                 <Grid Padding="5">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="50" />
                         <RowDefinition Height="50" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
@@ -28,18 +28,24 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Label Grid.Column="0" Text="{Binding CurrentRainmm}" FontSize="40" TextColor="#799eb9" HorizontalOptions="Center" />
+                    <Label Text="{Binding CurrentRainmm}" FontSize="40" TextColor="#799eb9" HorizontalOptions="Center" />
                     <Label Grid.Column="1" Text="{Binding CurrentRainDisc}" FontSize="40" TextColor="#ceedff" HorizontalOptions="Center" />
-                    <DatePicker Grid.Row="1" Grid.Column="0" x:Name="DatePicker1" Format="yyyy-MM-dd" Date="{Binding SelectedDate1}"/>
-                    <DatePicker Grid.Row="1" Grid.Column="1" x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
-
                 </Grid>
-
-
-                <Button Text="Refresh" Command="{Binding LoadRainByDateCommand}" BackgroundColor="#799eb9"/>
-
                 <oxy:PlotView Model="{Binding RainmmPlotModel}" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="250"/>
                 <oxy:PlotView Model="{Binding RainDiscPlotModel}" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="250"/>
+                <Grid Padding="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <DatePicker Grid.Column="0" x:Name="DatePicker1" Format="yyyy-MM-dd" Date="{Binding SelectedDate1}"/>
+                    <DatePicker Grid.Column="1" x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
+                </Grid>
+                <Button Text="Refresh" Command="{Binding LoadRainByDateCommand}" BackgroundColor="#799eb9"/>
             </StackLayout>
         </ScrollView>
     </StackLayout>

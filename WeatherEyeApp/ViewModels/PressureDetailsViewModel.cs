@@ -17,30 +17,30 @@ using OxyPlot.Axes;
 
 namespace WeatherEyeApp.ViewModels
 {
-    public class TempDetailsViewModel : BaseViewModel
+    public class PressureDetailsViewModel : BaseViewModel
     {
-        public ObservableCollection<SensorsData> TempDB { get; set; }
-        private readonly string tempSensorUrl = "http://weathereye.pl/api/sensors/s1";
-        public Command LoadTempCommand { get; }
-        public Command LoadTempByDateCommand { get; }
+        public ObservableCollection<SensorsData> PressureDB { get; set; }
+        private readonly string tempSensorUrl = "http://weathereye.pl/api/sensors/s3";
+        public Command LoadPressureCommand { get; }
+        public Command LoadPressureByDateCommand { get; }
         private readonly SensorService<SensorsData> tempService;
         private readonly LatestDataSensorService latestService;
-        private string currentTemp;
-        public string CurrentTemp
+        private string currentPressure;
+        public string CurrentPressure
         {
-            get => currentTemp;
+            get => currentPressure;
             set
             {
-                if (currentTemp != value)
+                if (currentPressure != value)
                 {
-                    currentTemp = value;
-                    OnPropertyChanged(nameof(CurrentTemp));
+                    currentPressure = value;
+                    OnPropertyChanged(nameof(CurrentPressure));
                 }
             }
         }
 
         private PlotModel tempPlotModel;
-        public PlotModel TempPlotModel
+        public PlotModel PressurePlotModel
         {
             get => tempPlotModel;
             set
@@ -48,7 +48,7 @@ namespace WeatherEyeApp.ViewModels
                 if (tempPlotModel != value)
                 {
                     tempPlotModel = value;
-                    OnPropertyChanged(nameof(TempPlotModel));
+                    OnPropertyChanged(nameof(PressurePlotModel));
                 }
             }
         }
@@ -81,62 +81,62 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
-        public TempDetailsViewModel()
+        public PressureDetailsViewModel()
         {
-            Title = "Temp Details";
+            Title = "Pressure Details";
             tempService = new SensorService<SensorsData>();
             latestService = new LatestDataSensorService();
-            TempDB = new ObservableCollection<SensorsData>();
-            LoadTempCommand = new Command(async () => await ExecuteLoadTempByDateCommand());
-            LoadTempByDateCommand = new Command(async () => await ExecuteLoadTempByDateCommand());
+            PressureDB = new ObservableCollection<SensorsData>();
+            LoadPressureCommand = new Command(async () => await ExecuteLoadPressureByDateCommand());
+            LoadPressureByDateCommand = new Command(async () => await ExecuteLoadPressureByDateCommand());
 
-            TempDB.CollectionChanged += OnTempCollectionChanged;
-            currentTemp = "0°C";
+            PressureDB.CollectionChanged += OnPressureCollectionChanged;
+            currentPressure = "0 hPa";
         }
 
-        private void OnTempCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnPressureCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                TempPlotModel = null;
+                PressurePlotModel = null;
             }
             else
             {
-                TempPlotModel = GenerateTempChart();
+                PressurePlotModel = GeneratePressureChart();
             }
         }
 
         public void OnAppearing()
         {
             IsBusy = true;
-            LoadTempCommand.Execute(null);
+            LoadPressureCommand.Execute(null);
         }
 
 
 
-        async Task ExecuteLoadTempByDateCommand()
+        async Task ExecuteLoadPressureByDateCommand()
         {
             IsBusy = true;
 
             try
             {
                 var latest = await latestService.RefreshDataAsync();
-                if (latest.s1 != null)
+                if (latest.s3 != null)
                 {
-                    CurrentTemp = latest.s1.value.ToString() + "°C";
+                    CurrentPressure = latest.s3.value.ToString() + "hPa";
                 }
 
-                TempDB.Clear();
+                PressureDB.Clear();
                 var temps = await tempService.GetDataByDateAsync(tempSensorUrl, selectedDate1, selectedDate2);
                 if(temps.Count() == 0)
                 {
-                    var latestDate = latest.s1.date;
+                    var latestDate = latest.s3.date;
                     temps = await tempService.GetDataByDateAsync(tempSensorUrl, latestDate, latestDate);
                 }
                 var sortedtemps = temps.OrderBy(aq => aq.date).ToList();
                 foreach (var temp in sortedtemps)
                 {
-                    TempDB.Add(temp);
+                    PressureDB.Add(temp);
                 }
                 
             }
@@ -150,17 +150,17 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
-        private PlotModel GenerateTempChart()
+        private PlotModel GeneratePressureChart()
         {
             var model = new PlotModel();
             var linePm2_5 = new LineSeries()
             {
-                Color = OxyColor.Parse("#d300a0"),
+                Color = OxyColor.Parse("#e93e3a"),
                 MarkerType = MarkerType.Circle,
-                SeriesGroupName = "Temperature"
+                SeriesGroupName = "Pressure hPa"
             };
 
-            foreach (var entry in TempDB)
+            foreach (var entry in PressureDB)
             {
                 var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
                 linePm2_5.Points.Add(dataPoint);
@@ -169,7 +169,7 @@ namespace WeatherEyeApp.ViewModels
             model.Series.Add(linePm2_5);
 
             model.Axes.Add(new DateTimeAxis { Position = AxisPosition.Bottom, Title = "Date" });
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Temperature °C" });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Pressure hPa" });
 
 
             return model;

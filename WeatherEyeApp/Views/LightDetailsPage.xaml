@@ -21,7 +21,6 @@
                 <Grid Padding="5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="50" />
-                        <RowDefinition Height="50" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -30,16 +29,27 @@
 
                     <Label Grid.Column="0" Text="{Binding CurrentLightUV}" FontSize="40" TextColor="#ffef5f" HorizontalOptions="Center" />
                     <Label Grid.Column="1" Text="{Binding CurrentLightLux}" FontSize="40" TextColor="#fcc111" HorizontalOptions="Center" />
-                    <DatePicker Grid.Row="1" Grid.Column="0" x:Name="DatePicker1" Format="yyyy-MM-dd" Date="{Binding SelectedDate1}"/>
-                    <DatePicker Grid.Row="1" Grid.Column="1" x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
 
                 </Grid>
                 
-                
-                <Button Text="Refresh" Command="{Binding LoadLightByDateCommand}" BackgroundColor="#fcc111"/>
-
                 <oxy:PlotView Model="{Binding LightUVPlotModel}" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="250"/>
                 <oxy:PlotView Model="{Binding LightLuxPlotModel}" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="250"/>
+                
+                <Grid Padding="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <DatePicker Grid.Column="0" x:Name="DatePicker1" Format="yyyy-MM-dd" Date="{Binding SelectedDate1}"/>
+                    <DatePicker Grid.Column="1" x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
+
+                </Grid>
+
+                <Button Text="Refresh" Command="{Binding LoadLightByDateCommand}" BackgroundColor="#fcc111"/>
             </StackLayout>
         </ScrollView>
     </StackLayout>

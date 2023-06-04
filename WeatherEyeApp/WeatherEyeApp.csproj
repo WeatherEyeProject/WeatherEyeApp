@@ -24,5 +24,11 @@
     <Compile Update="Views\AirQualityDetailsPage.xaml.cs">
       <DependentUpon>AirQualityDetailsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\HumidityDetailsPage.xaml.cs">
+      <DependentUpon>HumidityDetailsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PressureDetailsPage.xaml.cs">
+      <DependentUpon>PressureDetailsPage.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

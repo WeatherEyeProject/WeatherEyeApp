@@ -151,10 +151,26 @@ namespace WeatherEyeApp.ViewModels
 
             try
             {
+                var latest = await latestService.RefreshDataAsync();
+                if(latest.s5 != null)
+                {
+                    CurrentLightLux = latest.s5.value.ToString() + "Lux";
+                }
+                if(latest.s6 != null)
+                {
+                    CurrentLightUV = latest.s6.value.ToString() + "UV";
+                }
+
                 LightUVDB.Clear();
                 LightLuxDB.Clear();
                 var lightsUV = await lightService.GetDataByDateAsync(uvLightSensorUrl, selectedDate1, selectedDate2);
                 var lightsLux = await lightService.GetDataByDateAsync(luxLightSensorUrl, selectedDate1, selectedDate2);
+                if(lightsLux.Count() == 0 || lightsUV.Count() == 0)
+                {
+                    var latestDate = latest.s6.date;
+                    lightsUV = await lightService.GetDataByDateAsync(uvLightSensorUrl, latestDate, latestDate);
+                    lightsLux = await lightService.GetDataByDateAsync(luxLightSensorUrl, latestDate, latestDate);
+                }
                 var sortedListUV = lightsUV.OrderBy(aq => aq.date).ToList();
                 var sortedListLux = lightsLux.OrderBy(aq => aq.date).ToList();
                 foreach (var lght in sortedListUV)
@@ -165,9 +181,7 @@ namespace WeatherEyeApp.ViewModels
                 {
                     LightLuxDB.Add(lght);
                 }
-                var latest = await latestService.RefreshDataAsync();
-                CurrentLightUV = latest.s6.value.ToString() + "UV";
-                CurrentLightLux = latest.s5.value.ToString() + "Lux";
+                
             }
             catch (Exception ex)
             {

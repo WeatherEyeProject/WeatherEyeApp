@@ -153,10 +153,26 @@ namespace WeatherEyeApp.ViewModels
 
             try
             {
+                var latest = await latestService.RefreshDataAsync();
+                if(latest.s10 != null)
+                {
+                    CurrentRainmm = latest.s10.value.ToString() + "mm";
+                }
+                if (latest.s11 != null)
+                {
+                    CurrentRainDisc = latest.s11.value.ToString();
+                }
+
                 RainDB.Clear();
                 RainDiscreteDB.Clear();
                 var rainsmm = await rainService.GetDataByDateAsync(valueRainSensorUrl, selectedDate1, selectedDate2);
                 var rainsdisc = await rainService.GetDataByDateAsync(discreteRainSensorUrl, selectedDate1, selectedDate2);
+                if(rainsmm.Count() == 0 || rainsdisc.Count() == 0)
+                {
+                    var latestDate = latest.s10.date;
+                    rainsmm = await rainService.GetDataByDateAsync(valueRainSensorUrl, latestDate, latestDate);
+                    rainsdisc = await rainService.GetDataByDateAsync(discreteRainSensorUrl, latestDate, latestDate);
+                }
                 var sortedListmm = rainsmm.OrderBy(aq => aq.date).ToList();
                 var sortedListdisc = rainsdisc.OrderBy(aq => aq.date).ToList();
                 foreach (var rain in sortedListmm)
@@ -167,9 +183,6 @@ namespace WeatherEyeApp.ViewModels
                 {
                     RainDiscreteDB.Add(rain);
                 }
-                var latest = await latestService.RefreshDataAsync();
-                CurrentRainmm = latest.s10.value.ToString() + "mm";
-                CurrentRainDisc = latest.s11.value.ToString();
             }
             catch (Exception ex)
             {

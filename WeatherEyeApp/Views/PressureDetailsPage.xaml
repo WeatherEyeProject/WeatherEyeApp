@@ -3,11 +3,11 @@
              xmlns:microcharts="clr-namespace:Microcharts.Forms;assembly=Microcharts.Forms"
              xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="WeatherEyeApp.Views.TempDetailsPage"
+             x:Class="WeatherEyeApp.Views.PressureDetailsPage"
              Title="{Binding Title}"
              xmlns:local="clr-namespace:WeatherEyeApp.ViewModels"  
              xmlns:oxy="clr-namespace:OxyPlot.Xamarin.Forms;assembly=OxyPlot.Xamarin.Forms"
-             xmlns:model="clr-namespace:WeatherEyeApp.Models" x:DataType="local:TempDetailsViewModel">
+             xmlns:model="clr-namespace:WeatherEyeApp.Models" x:DataType="local:PressureDetailsViewModel">
     
     <!--
       x:DataType enables compiled bindings for better performance and compile time validation of binding expressions.
@@ -17,12 +17,12 @@
     <StackLayout>
         <RefreshView>
         <StackLayout Padding="10">
-            <Label Text="CurrentTemperature" FontSize="20" TextColor="#ff0071" HorizontalOptions="Center"/>
-                <Label Text="{Binding CurrentTemp}" FontSize="40" TextColor="#d300a0" HorizontalOptions="Center" />
-                <oxy:PlotView Model="{Binding TempPlotModel}" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="250"/>
+                <Label Text="CurrentPressure" FontSize="20" TextColor="#e93e3a" HorizontalOptions="Center"/>
+                <Label Text="{Binding CurrentPressure}" FontSize="40" TextColor="Crimson" HorizontalOptions="Center" />
+                <oxy:PlotView Model="{Binding PressurePlotModel}" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="250"/>
                 <Grid Padding="5">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="50" />
+                        <RowDefinition Height="40" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -32,7 +32,7 @@
                     <DatePicker Grid.Column="0" x:Name="DatePicker1" Format="yyyy-MM-dd" Date="{Binding SelectedDate1}"/>
                     <DatePicker Grid.Column="1" x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
                 </Grid>
-                <Button Text="Refresh" BackgroundColor="#d300a0" Command="{Binding LoadTempByDateCommand}" />
+                <Button Text="Refresh" BackgroundColor="#e93e3a" Command="{Binding LoadPressureByDateCommand}" />
             </StackLayout>
         </RefreshView>
     </StackLayout>
