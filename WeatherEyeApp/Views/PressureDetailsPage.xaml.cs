@@ -32,6 +32,12 @@ namespace WeatherEyeApp.Views
             _viewModel.OnAppearing();
         }
 
-        
+        public void HandleToggled(object sender, ToggledEventArgs e)
+        {
+            _viewModel.IsDayNightMode = e.Value;
+            _viewModel.PressurePlotModel = _viewModel.GenerateSingleChart(_viewModel.IsDayNightMode, "#e93e3a", "Pressure hPa", _viewModel.PressureDB);
+        }
+
+
     }
 }

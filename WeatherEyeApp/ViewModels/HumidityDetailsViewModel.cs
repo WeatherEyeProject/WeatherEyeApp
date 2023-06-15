@@ -81,6 +81,20 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
+        private bool isDayNightMode;
+        public bool IsDayNightMode
+        {
+            get => isDayNightMode;
+            set
+            {
+                if (isDayNightMode != value)
+                {
+                    isDayNightMode = value;
+                    OnPropertyChanged(nameof(IsDayNightMode));
+                }
+            }
+        }
+
         public HumidityDetailsViewModel()
         {
             Title = "Humidity Details";
@@ -102,7 +116,10 @@ namespace WeatherEyeApp.ViewModels
             }
             else
             {
-                HumidityPlotModel = GenerateHumidityChart();
+                if(HumidityDB.Count() > 0)
+                {
+                    HumidityPlotModel = GenerateSingleChart(IsDayNightMode, "#799eb9", "Humidity %", HumidityDB);
+                }
             }
         }
 
@@ -126,19 +143,34 @@ namespace WeatherEyeApp.ViewModels
                     CurrentHumidity = latest.s2.value.ToString() + "%";
                 }
 
-                HumidityDB.Clear();
-                var temps = await tempService.GetDataByDateAsync(tempSensorUrl, selectedDate1, selectedDate2);
-                if(temps.Count() == 0)
+                var hums = await tempService.GetDataByDateAsync(tempSensorUrl, selectedDate1, selectedDate2);
+                if(hums != null)
                 {
-                    var latestDate = latest.s2.date;
-                    temps = await tempService.GetDataByDateAsync(tempSensorUrl, latestDate, latestDate);
+                    if (hums.Count() == 0)
+                    {
+                        if (HumidityDB.Count() == 0)
+                        {
+                            var latestDate = latest.s2.date;
+                            hums = await tempService.GetDataByDateAsync(tempSensorUrl, latestDate, latestDate);
+                        }
+                        else
+                        {
+                            return;
+                        }
+
+                    }
+                    else
+                    {
+                        HumidityDB.Clear();
+                    }
+                    var sortedhums = hums.OrderBy(aq => aq.date).ToList();
+                    foreach (var temp in sortedhums)
+                    {
+                        HumidityDB.Add(temp);
+                    }
                 }
-                var sortedtemps = temps.OrderBy(aq => aq.date).ToList();
-                foreach (var temp in sortedtemps)
-                {
-                    HumidityDB.Add(temp);
-                }
-                
+                //FillDBWithMockData(HumidityDB);
+
             }
             catch (Exception ex)
             {
@@ -148,33 +180,10 @@ namespace WeatherEyeApp.ViewModels
             {
                 IsBusy = false;
             }
+            
         }
 
-        private PlotModel GenerateHumidityChart()
-        {
-            var model = new PlotModel();
-            var linePm2_5 = new LineSeries()
-            {
-                Color = OxyColor.Parse("#799eb9"),
-                MarkerType = MarkerType.Circle,
-                SeriesGroupName = "Humidity"
-            };
-
-            foreach (var entry in HumidityDB)
-            {
-                var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
-                linePm2_5.Points.Add(dataPoint);
-            }
-
-            model.Series.Add(linePm2_5);
-
-            model.Axes.Add(new DateTimeAxis { Position = AxisPosition.Bottom, Title = "Date" });
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Humidity %" });
-
-
-            return model;
-
-        }
+        
 
     }
 }

@@ -10,6 +10,7 @@
             <Color x:Key="Primary">#2196F3</Color>
             <Style TargetType="Button">
                 <Setter Property="TextColor" Value="White"></Setter>
+                <Setter Property="FontFamily" Value="Inter-Regular.ttf#Inter-Regular"></Setter>
                 <Setter Property="VisualStateManager.VisualStateGroups">
                     <VisualStateGroupList>
                         <VisualStateGroup x:Name="CommonStates">
@@ -27,6 +28,13 @@
                     </VisualStateGroupList>
                 </Setter>
             </Style>
+            <Style TargetType="Label">
+                <Setter Property="FontFamily" Value="Inter-Regular.ttf#Inter-Regular"></Setter>
+            </Style>
+            <Style TargetType="DatePicker">
+                <Setter Property="FontFamily" Value="Inter-Regular.ttf#Inter-Regular"></Setter>
+            </Style>
+            
         </ResourceDictionary>        
     </Application.Resources>
 </Application>

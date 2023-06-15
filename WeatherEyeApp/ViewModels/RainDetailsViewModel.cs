@@ -21,7 +21,7 @@ namespace WeatherEyeApp.ViewModels
     {
         public ObservableCollection<SensorsData> RainDB { get; set; }
         public ObservableCollection<SensorsData> RainDiscreteDB { get; set; }
-        private string discreteRainSensorUrl = "http://weathereye.pl/api/sensors/s11";
+        private readonly string discreteRainSensorUrl = "http://weathereye.pl/api/sensors/s11";
         private readonly string valueRainSensorUrl = "http://weathereye.pl/api/sensors/s10";
         public Command LoadRainCommand { get; }
         public Command LoadRainByDateCommand { get; }
@@ -110,6 +110,20 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
+        private bool isDayNightMode;
+        public bool IsDayNightMode
+        {
+            get => isDayNightMode;
+            set
+            {
+                if (isDayNightMode != value)
+                {
+                    isDayNightMode = value;
+                    OnPropertyChanged(nameof(IsDayNightMode));
+                }
+            }
+        }
+
         public RainDetailsViewModel()
         {
             Title = "Rain Details";
@@ -135,8 +149,11 @@ namespace WeatherEyeApp.ViewModels
             }
             else
             {
-                RainmmPlotModel = GenerateRainChart("mm", "#799eb9");
-                RainDiscPlotModel = GenerateRainChart("disc", "#ceedff");
+                if(RainDB.Count() > 0 && RainDiscreteDB.Count() > 0)
+                {
+                    RainmmPlotModel = GenerateSingleChart(IsDayNightMode, "#799eb9", "Rain mm", RainDB);
+                    RainDiscPlotModel = GenerateSingleChart(IsDayNightMode, "#ceedff", "Rain", RainDiscreteDB);
+                }
             }
         }
 
@@ -163,26 +180,42 @@ namespace WeatherEyeApp.ViewModels
                     CurrentRainDisc = latest.s11.value.ToString();
                 }
 
-                RainDB.Clear();
-                RainDiscreteDB.Clear();
+                
                 var rainsmm = await rainService.GetDataByDateAsync(valueRainSensorUrl, selectedDate1, selectedDate2);
                 var rainsdisc = await rainService.GetDataByDateAsync(discreteRainSensorUrl, selectedDate1, selectedDate2);
-                if(rainsmm.Count() == 0 || rainsdisc.Count() == 0)
+                if(rainsmm != null & rainsdisc != null)
                 {
-                    var latestDate = latest.s10.date;
-                    rainsmm = await rainService.GetDataByDateAsync(valueRainSensorUrl, latestDate, latestDate);
-                    rainsdisc = await rainService.GetDataByDateAsync(discreteRainSensorUrl, latestDate, latestDate);
+                    if (rainsmm.Count() == 0 || rainsdisc.Count() == 0)
+                    {
+                        if (RainDB.Count() == 0 || RainDiscreteDB.Count() == 0)
+                        {
+                            var latestDate = latest.s10.date;
+                            rainsmm = await rainService.GetDataByDateAsync(valueRainSensorUrl, latestDate, latestDate);
+                            rainsdisc = await rainService.GetDataByDateAsync(discreteRainSensorUrl, latestDate, latestDate);
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        RainDB.Clear();
+                        RainDiscreteDB.Clear();
+                    }
+                    var sortedListmm = rainsmm.OrderBy(aq => aq.date).ToList();
+                    var sortedListdisc = rainsdisc.OrderBy(aq => aq.date).ToList();
+                    foreach (var rain in sortedListmm)
+                    {
+                        RainDB.Add(rain);
+                    }
+                    foreach (var rain in sortedListdisc)
+                    {
+                        RainDiscreteDB.Add(rain);
+                    }
                 }
-                var sortedListmm = rainsmm.OrderBy(aq => aq.date).ToList();
-                var sortedListdisc = rainsdisc.OrderBy(aq => aq.date).ToList();
-                foreach (var rain in sortedListmm)
-                {
-                    RainDB.Add(rain);
-                }
-                foreach (var rain in sortedListdisc)
-                {
-                    RainDiscreteDB.Add(rain);
-                }
+                //FillDBWithMockData(RainDB);
+                //FillDBWithMockData(RainDiscreteDB);
             }
             catch (Exception ex)
             {
@@ -192,47 +225,8 @@ namespace WeatherEyeApp.ViewModels
             {
                 IsBusy = false;
             }
-        }
 
-        private PlotModel GenerateRainChart(string raintype, string color)
-        {
-            var model = new PlotModel();
-            var linerain = new LineSeries()
-            {
-                Color = OxyColor.Parse(color),
-                MarkerType = MarkerType.Circle,
-                SeriesGroupName = "Rain"
-            };
-
-            if (raintype == "mm")
-            {
-                foreach (var entry in RainDB)
-                {
-                    var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
-                    linerain.Points.Add(dataPoint);
-                }
-
-                model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Rain mm" });
-            }
-            else
-            {
-                foreach (var entry in RainDiscreteDB)
-                {
-                    var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
-                    linerain.Points.Add(dataPoint);
-                }
-
-                model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Rain" });
-            }
-
-            model.Series.Add(linerain);
-
-            model.Axes.Add(new DateTimeAxis { Position = AxisPosition.Bottom, Title = "Date" });
-
-
-
-            return model;
-
+            
         }
 
     }

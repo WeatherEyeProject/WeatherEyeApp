@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,10 +14,21 @@ namespace WeatherEyeApp.ViewModels
 {
     public class AboutViewModel : BaseViewModel
     {
-        public LatestData LatestData { get; set; }
+        private LatestData latestData;
+        public LatestData LatestData {
+            get => latestData;
+            set
+            {
+                if (latestData != value)
+                {
+                    latestData = value;
+                    OnPropertyChanged(nameof(LatestData));
+                }
+            }
+        }
         public Command LoadDataCommand { get; }
         private readonly LatestDataSensorService latestDataService;
-        private string currentTemp = "15*C";
+        private string currentTemp = "15°C";
         public string CurrentTemp
         {
             get => currentTemp;
@@ -76,8 +88,7 @@ namespace WeatherEyeApp.ViewModels
             CurrentPm2_5 = "3µ/m³";
             LatestData = new LatestData();
             latestDataService = new LatestDataSensorService();
-            LoadDataCommand = new Command(async () => await ExecuteLoadDataCommand());
-            
+            LoadDataCommand = new Command(async () => await ExecuteLoadDataCommand()); 
         }
 
         public void OnAppearing()
@@ -108,10 +119,5 @@ namespace WeatherEyeApp.ViewModels
                 IsBusy = false;
             }
         }
-
-
-
-
-
     }
 }

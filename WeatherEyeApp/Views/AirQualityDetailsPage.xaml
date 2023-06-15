@@ -4,10 +4,10 @@
              xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="WeatherEyeApp.Views.AirQualityDetailsPage"
-             Title="{Binding Title}"
-             xmlns:local="clr-namespace:WeatherEyeApp.ViewModels"  
+             Title="{Binding Title}" 
+             xmlns:vm="clr-namespace:WeatherEyeApp.ViewModels"
              xmlns:oxy="clr-namespace:OxyPlot.Xamarin.Forms;assembly=OxyPlot.Xamarin.Forms"
-             xmlns:model="clr-namespace:WeatherEyeApp.Models" x:DataType="local:AirQualityDetailsViewModel">
+             xmlns:model="clr-namespace:WeatherEyeApp.Models" x:DataType="vm:AirQualityDetailsViewModel">
     
     <!--
       x:DataType enables compiled bindings for better performance and compile time validation of binding expressions.
@@ -17,7 +17,7 @@
     <StackLayout>
         <RefreshView>
         <StackLayout Padding="10">
-            <Label Text="Current Air Quality" FontSize="20" TextColor="#799eb9" HorizontalOptions="Center"/>
+                <Label Text="Current Air Quality" FontSize="20" TextColor="#5BB325" HorizontalOptions="Center"/>
                 <Grid Padding="5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="50" />
@@ -27,8 +27,8 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Label Text="{Binding CurrentAirQualityPm2_5}" FontSize="40" TextColor="#799eb9" HorizontalOptions="Center" />
-                    <Label Grid.Column="1" Text="{Binding CurrentAirQualityPm10}" FontSize="40" TextColor="#799eb9" HorizontalOptions="Center" />
+                    <Label Text="{Binding CurrentAirQualityPm2_5}" FontSize="40" TextColor="#5BB325" HorizontalOptions="Center" />
+                    <Label Grid.Column="1" Text="{Binding CurrentAirQualityPm10}" FontSize="40" TextColor="#A7E481" HorizontalOptions="Center" />
 
                 </Grid>
                 
@@ -46,7 +46,21 @@
                     <DatePicker Grid.Column="1" x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
 
                 </Grid>
-                <Button Text="Refresh" Command="{Binding LoadAirQualityByDateCommand}" />
+                <Grid Padding="5" VerticalOptions="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="45"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Text="Summary" HorizontalOptions="End"></Label>
+                    <Switch IsToggled="{Binding IsDayNightMode, Mode=TwoWay}" Toggled="HandleToggled" Grid.Column="1" HorizontalOptions="Center" OnColor="#CDFAB2" ThumbColor="#5BB325"/>
+                    <Label Grid.Column="2" Text="Day/Night" HorizontalOptions="Start"></Label>
+                </Grid>
+                <Button Text="Refresh" BackgroundColor="#5BB325" Command="{Binding LoadAirQualityByDateCommand}" />
             </StackLayout>
         </RefreshView>
     </StackLayout>

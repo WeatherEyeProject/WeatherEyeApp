@@ -15,7 +15,7 @@ namespace WeatherEyeApp.Views
 {
     public partial class AirQualityDetailsPage : ContentPage
     {
-        AirQualityDetailsViewModel _viewModel;
+        readonly AirQualityDetailsViewModel _viewModel;
 
         public AirQualityDetailsPage()
         {
@@ -32,6 +32,12 @@ namespace WeatherEyeApp.Views
             _viewModel.OnAppearing();
         }
 
-        
+        public void HandleToggled(object sender, ToggledEventArgs e)
+        {
+            _viewModel.IsDayNightMode = e.Value;
+            _viewModel.AirQualityPlotModel = _viewModel.GenerateDoubleChart(_viewModel.IsDayNightMode, "#5BB325", "#A7E481", "Air Quality µ/m³", _viewModel.AirQualityPm2_5DB, _viewModel.AirQualityPm10DB);
+        }
+
+
     }
 }

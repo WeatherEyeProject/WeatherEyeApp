@@ -13,7 +13,7 @@ namespace WeatherEyeApp.Views
         {
             InitializeComponent();
 
-            _viewModel = new AboutViewModel();
+            BindingContext = _viewModel = new AboutViewModel();
         }
 
         protected override void OnAppearing()

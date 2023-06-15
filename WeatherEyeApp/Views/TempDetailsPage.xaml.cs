@@ -25,6 +25,12 @@ namespace WeatherEyeApp.Views
 
         }
 
+        public void HandleToggled(object sender, ToggledEventArgs e)
+        {
+            _viewModel.IsDayNightMode = e.Value;
+            _viewModel.TempPlotModel = _viewModel.GenerateSingleChart(_viewModel.IsDayNightMode, "#d300a0", "Temperature °C", _viewModel.TempDB);
+        }
+
 
         protected override void OnAppearing()
         {
@@ -32,6 +38,5 @@ namespace WeatherEyeApp.Views
             _viewModel.OnAppearing();
         }
 
-        
     }
 }

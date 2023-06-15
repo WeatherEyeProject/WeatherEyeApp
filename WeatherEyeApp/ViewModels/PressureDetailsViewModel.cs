@@ -81,6 +81,20 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
+        private bool isDayNightMode;
+        public bool IsDayNightMode
+        {
+            get => isDayNightMode;
+            set
+            {
+                if (isDayNightMode != value)
+                {
+                    isDayNightMode = value;
+                    OnPropertyChanged(nameof(IsDayNightMode));
+                }
+            }
+        }
+
         public PressureDetailsViewModel()
         {
             Title = "Pressure Details";
@@ -102,7 +116,10 @@ namespace WeatherEyeApp.ViewModels
             }
             else
             {
-                PressurePlotModel = GeneratePressureChart();
+                if(PressureDB.Count() > 0)
+                {
+                    PressurePlotModel = GenerateSingleChart(IsDayNightMode, "#e93e3a", "Pressure hPa", PressureDB);
+                }
             }
         }
 
@@ -126,19 +143,34 @@ namespace WeatherEyeApp.ViewModels
                     CurrentPressure = latest.s3.value.ToString() + "hPa";
                 }
 
-                PressureDB.Clear();
-                var temps = await tempService.GetDataByDateAsync(tempSensorUrl, selectedDate1, selectedDate2);
-                if(temps.Count() == 0)
-                {
-                    var latestDate = latest.s3.date;
-                    temps = await tempService.GetDataByDateAsync(tempSensorUrl, latestDate, latestDate);
-                }
-                var sortedtemps = temps.OrderBy(aq => aq.date).ToList();
-                foreach (var temp in sortedtemps)
-                {
-                    PressureDB.Add(temp);
-                }
                 
+                var press = await tempService.GetDataByDateAsync(tempSensorUrl, selectedDate1, selectedDate2);
+                if(press != null)
+                {
+                    if (press.Count() == 0)
+                    {
+                        if (PressureDB.Count() == 0)
+                        {
+                            var latestDate = latest.s3.date;
+                            press = await tempService.GetDataByDateAsync(tempSensorUrl, latestDate, latestDate);
+                        }
+                        else
+                        {
+                            return;
+                        }
+
+                    }
+                    else
+                    {
+                        PressureDB.Clear();
+                    }
+                    var sortedpress = press.OrderBy(aq => aq.date).ToList();
+                    foreach (var temp in sortedpress)
+                    {
+                        PressureDB.Add(temp);
+                    }
+                }
+                //FillDBWithMockData(PressureDB);
             }
             catch (Exception ex)
             {
@@ -148,33 +180,11 @@ namespace WeatherEyeApp.ViewModels
             {
                 IsBusy = false;
             }
+
+           
         }
 
-        private PlotModel GeneratePressureChart()
-        {
-            var model = new PlotModel();
-            var linePm2_5 = new LineSeries()
-            {
-                Color = OxyColor.Parse("#e93e3a"),
-                MarkerType = MarkerType.Circle,
-                SeriesGroupName = "Pressure hPa"
-            };
-
-            foreach (var entry in PressureDB)
-            {
-                var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
-                linePm2_5.Points.Add(dataPoint);
-            }
-
-            model.Series.Add(linePm2_5);
-
-            model.Axes.Add(new DateTimeAxis { Position = AxisPosition.Bottom, Title = "Date" });
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Pressure hPa" });
-
-
-            return model;
-
-        }
+       
 
     }
 }

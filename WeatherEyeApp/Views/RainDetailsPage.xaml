@@ -29,7 +29,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Label Text="{Binding CurrentRainmm}" FontSize="40" TextColor="#799eb9" HorizontalOptions="Center" />
-                    <Label Grid.Column="1" Text="{Binding CurrentRainDisc}" FontSize="40" TextColor="#ceedff" HorizontalOptions="Center" />
+                    <Label Grid.Column="1" Text="{Binding CurrentRainDisc}" FontSize="40" TextColor="#C1DCEC" HorizontalOptions="Center" />
                 </Grid>
                 <oxy:PlotView Model="{Binding RainmmPlotModel}" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="250"/>
                 <oxy:PlotView Model="{Binding RainDiscPlotModel}" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="250"/>
@@ -44,6 +44,20 @@
 
                     <DatePicker Grid.Column="0" x:Name="DatePicker1" Format="yyyy-MM-dd" Date="{Binding SelectedDate1}"/>
                     <DatePicker Grid.Column="1" x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
+                </Grid>
+                <Grid Padding="5" VerticalOptions="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="45"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Text="Summary" HorizontalOptions="End"></Label>
+                    <Switch IsToggled="{Binding IsDayNightMode, Mode=TwoWay}" Toggled="HandleToggled" Grid.Column="1" HorizontalOptions="Center" OnColor="#C1DCEC" ThumbColor="#799eb9"/>
+                    <Label Grid.Column="2" Text="Day/Night" HorizontalOptions="Start"></Label>
                 </Grid>
                 <Button Text="Refresh" Command="{Binding LoadRainByDateCommand}" BackgroundColor="#799eb9"/>
             </StackLayout>

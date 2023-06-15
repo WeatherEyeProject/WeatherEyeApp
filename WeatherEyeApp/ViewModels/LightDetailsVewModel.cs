@@ -21,7 +21,7 @@ namespace WeatherEyeApp.ViewModels
     {
         public ObservableCollection<SensorsData> LightUVDB { get; set; }
         public ObservableCollection<SensorsData> LightLuxDB { get; set; }
-        private string luxLightSensorUrl = "http://weathereye.pl/api/sensors/s5";
+        private readonly string luxLightSensorUrl = "http://weathereye.pl/api/sensors/s5";
         private readonly string uvLightSensorUrl = "http://weathereye.pl/api/sensors/s6";
         public Command LoadLightCommand { get; }
         public Command LoadLightByDateCommand { get; }
@@ -109,6 +109,20 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
+        private bool isDayNightMode;
+        public bool IsDayNightMode
+        {
+            get => isDayNightMode;
+            set
+            {
+                if (isDayNightMode != value)
+                {
+                    isDayNightMode = value;
+                    OnPropertyChanged(nameof(IsDayNightMode));
+                }
+            }
+        }
+
         public LightDetailsViewModel()
         {
             Title = "Light Details";
@@ -134,8 +148,11 @@ namespace WeatherEyeApp.ViewModels
             }
             else
             {
-                LightUVPlotModel = GenerateLineChart("uv", "#ffef5f");
-                LightLuxPlotModel = GenerateLineChart("lux", "#fcc111");
+                if(LightLuxDB.Count() > 0 && LightUVDB.Count() > 0)
+                {
+                    LightUVPlotModel = GenerateSingleChart(IsDayNightMode, "#ffef5f", "Light UV", LightUVDB);
+                    LightLuxPlotModel = GenerateSingleChart(IsDayNightMode, "#fcc111", "Light Lux", LightLuxDB);
+                } 
             }
         }
 
@@ -161,27 +178,44 @@ namespace WeatherEyeApp.ViewModels
                     CurrentLightUV = latest.s6.value.ToString() + "UV";
                 }
 
-                LightUVDB.Clear();
-                LightLuxDB.Clear();
+                
                 var lightsUV = await lightService.GetDataByDateAsync(uvLightSensorUrl, selectedDate1, selectedDate2);
                 var lightsLux = await lightService.GetDataByDateAsync(luxLightSensorUrl, selectedDate1, selectedDate2);
-                if(lightsLux.Count() == 0 || lightsUV.Count() == 0)
+                if(lightsLux != null && lightsUV != null)
                 {
-                    var latestDate = latest.s6.date;
-                    lightsUV = await lightService.GetDataByDateAsync(uvLightSensorUrl, latestDate, latestDate);
-                    lightsLux = await lightService.GetDataByDateAsync(luxLightSensorUrl, latestDate, latestDate);
-                }
-                var sortedListUV = lightsUV.OrderBy(aq => aq.date).ToList();
-                var sortedListLux = lightsLux.OrderBy(aq => aq.date).ToList();
-                foreach (var lght in sortedListUV)
-                {
-                    LightUVDB.Add(lght);
-                }
-                foreach (var lght in sortedListLux)
-                {
-                    LightLuxDB.Add(lght);
-                }
-                
+                    if (lightsLux.Count() == 0 || lightsUV.Count() == 0)
+                    {
+                        if (LightLuxDB.Count() == 0 || LightUVDB.Count() == 0)
+                        {   //get data from last day available
+                            var latestDate = latest.s6.date;
+                            lightsUV = await lightService.GetDataByDateAsync(uvLightSensorUrl, latestDate, latestDate);
+                            lightsLux = await lightService.GetDataByDateAsync(luxLightSensorUrl, latestDate, latestDate);
+                        }
+                        else
+                        {
+                            return;
+                        }
+
+                    }
+                    else
+                    {
+                        LightUVDB.Clear();
+                        LightLuxDB.Clear();
+                    }
+                    var sortedListUV = lightsUV.OrderBy(aq => aq.date).ToList();
+                    var sortedListLux = lightsLux.OrderBy(aq => aq.date).ToList();
+                    foreach (var lght in sortedListUV)
+                    {
+                        LightUVDB.Add(lght);
+                    }
+                    foreach (var lght in sortedListLux)
+                    {
+                        LightLuxDB.Add(lght);
+                    }
+                }                
+                //FillDBWithMockData(LightLuxDB);
+                //FillDBWithMockData(LightUVDB);
+
             }
             catch (Exception ex)
             {
@@ -191,45 +225,8 @@ namespace WeatherEyeApp.ViewModels
             {
                 IsBusy = false;
             }
-        }
 
-        private PlotModel GenerateLineChart(string lighttype, string color)
-        {
-            var model = new PlotModel();
-            var linelight = new LineSeries()
-            {
-                Color = OxyColor.Parse(color),
-                MarkerType = MarkerType.Circle,
-                SeriesGroupName = "LightUV"
-            };
-
-            if(lighttype == "uv")
-            {
-                foreach (var entry in LightUVDB)
-                {
-                    var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
-                    linelight.Points.Add(dataPoint);
-                }
-
-                model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Light UV" });
-            }
-            else
-            {
-                foreach (var entry in LightLuxDB)
-                {
-                    var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
-                    linelight.Points.Add(dataPoint);
-                }
-
-                model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Light Lux" });
-            }
-
-            model.Series.Add(linelight);
-
-            model.Axes.Add(new DateTimeAxis { Position = AxisPosition.Bottom, Title = "Date" });
-
-
-            return model;
+            
         }
 
     }

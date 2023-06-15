@@ -32,6 +32,12 @@ namespace WeatherEyeApp.Views
             _viewModel.OnAppearing();
         }
 
-        
+        public void HandleToggled(object sender, ToggledEventArgs e)
+        {
+            _viewModel.IsDayNightMode = e.Value;
+            _viewModel.HumidityPlotModel = _viewModel.GenerateSingleChart(_viewModel.IsDayNightMode, "#799eb9", "Humidity %", _viewModel.HumidityDB);
+        }
+
+
     }
 }

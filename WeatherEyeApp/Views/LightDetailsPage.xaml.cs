@@ -15,7 +15,7 @@ namespace WeatherEyeApp.Views
 {
     public partial class LightDetailsPage : ContentPage
     {
-        LightDetailsViewModel _viewModel;
+        readonly LightDetailsViewModel _viewModel;
  
 
         public LightDetailsPage()
@@ -32,6 +32,13 @@ namespace WeatherEyeApp.Views
             _viewModel.OnAppearing();
         }
 
-        
+        public void HandleToggled(object sender, ToggledEventArgs e)
+        {
+            _viewModel.IsDayNightMode = e.Value;
+            _viewModel.LightUVPlotModel = _viewModel.GenerateSingleChart(_viewModel.IsDayNightMode, "#ffef5f", "Light UV", _viewModel.LightUVDB);
+            _viewModel.LightLuxPlotModel = _viewModel.GenerateSingleChart(_viewModel.IsDayNightMode, "#fcc111", "Light LUX", _viewModel.LightLuxDB);
+        }
+
+
     }
 }

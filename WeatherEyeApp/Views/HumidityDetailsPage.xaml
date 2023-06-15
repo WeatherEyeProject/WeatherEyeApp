@@ -17,7 +17,7 @@
     <StackLayout>
         <RefreshView>
         <StackLayout Padding="10">
-            <Label Text="CurrentHumidity" FontSize="20" TextColor="#ceedff" HorizontalOptions="Center"/>
+                <Label Text="CurrentHumidity" FontSize="20" TextColor="#799eb9" HorizontalOptions="Center"/>
                 <Label Text="{Binding CurrentHumidity}" FontSize="40" TextColor="#799eb9" HorizontalOptions="Center" />
                 <oxy:PlotView Model="{Binding HumidityPlotModel}" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="250"/>
                 <Grid Padding="5">
@@ -31,6 +31,20 @@
 
                     <DatePicker Grid.Column="0" x:Name="DatePicker1" Format="yyyy-MM-dd" Date="{Binding SelectedDate1}"/>
                     <DatePicker Grid.Column="1" x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
+                </Grid>
+                <Grid Padding="5" VerticalOptions="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="45"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Text="Summary" HorizontalOptions="End"></Label>
+                    <Switch IsToggled="{Binding IsDayNightMode, Mode=TwoWay}" Toggled="HandleToggled" Grid.Column="1" HorizontalOptions="Center" OnColor="#C1DCEC" ThumbColor="#799eb9" />
+                    <Label Grid.Column="2" Text="Day/Night" HorizontalOptions="Start"></Label>
                 </Grid>
                 <Button Text="Refresh" BackgroundColor="#799eb9" Command="{Binding LoadHumidityByDateCommand}" />
             </StackLayout>

@@ -48,6 +48,20 @@
                     <DatePicker Grid.Column="1" x:Name="DatePicker2" Format="yyyy-MM-dd" Date="{Binding SelectedDate2}"/>
 
                 </Grid>
+                <Grid Padding="5" VerticalOptions="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="45"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Text="Summary" HorizontalOptions="End"></Label>
+                    <Switch IsToggled="{Binding IsDayNightMode, Mode=TwoWay}" Toggled="HandleToggled" Grid.Column="1" HorizontalOptions="Center" OnColor="#ffef5f" ThumbColor="#fcc111" />
+                    <Label Grid.Column="2" Text="Day/Night" HorizontalOptions="Start"></Label>
+                </Grid>
 
                 <Button Text="Refresh" Command="{Binding LoadLightByDateCommand}" BackgroundColor="#fcc111"/>
             </StackLayout>

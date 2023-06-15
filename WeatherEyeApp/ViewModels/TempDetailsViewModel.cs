@@ -81,6 +81,20 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
+        private bool isDayNightMode;
+        public bool IsDayNightMode
+        {
+            get => isDayNightMode;
+            set
+            {
+                if(isDayNightMode != value)
+                {
+                    isDayNightMode = value;
+                    OnPropertyChanged(nameof(IsDayNightMode));
+                }
+            }
+        }
+
         public TempDetailsViewModel()
         {
             Title = "Temp Details";
@@ -102,7 +116,10 @@ namespace WeatherEyeApp.ViewModels
             }
             else
             {
-                TempPlotModel = GenerateTempChart();
+                if(TempDB.Count() > 0)
+                {
+                    TempPlotModel = GenerateSingleChart(isDayNightMode, "#FF9900", "Temperature °C", TempDB);
+                }
             }
         }
 
@@ -111,6 +128,8 @@ namespace WeatherEyeApp.ViewModels
             IsBusy = true;
             LoadTempCommand.Execute(null);
         }
+
+        
 
 
 
@@ -126,19 +145,34 @@ namespace WeatherEyeApp.ViewModels
                     CurrentTemp = latest.s1.value.ToString() + "°C";
                 }
 
-                TempDB.Clear();
-                var temps = await tempService.GetDataByDateAsync(tempSensorUrl, selectedDate1, selectedDate2);
-                if(temps.Count() == 0)
+                var temps = await tempService.GetDataByDateAsync(tempSensorUrl, selectedDate1.AddDays(-1), selectedDate2);
+                if(temps != null)
                 {
-                    var latestDate = latest.s1.date;
-                    temps = await tempService.GetDataByDateAsync(tempSensorUrl, latestDate, latestDate);
-                }
-                var sortedtemps = temps.OrderBy(aq => aq.date).ToList();
-                foreach (var temp in sortedtemps)
-                {
-                    TempDB.Add(temp);
-                }
-                
+                    if (temps.Count() == 0)
+                    {
+                        if (TempDB.Count() != 0)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            var latestDate = latest.s1.date;
+                            temps = await tempService.GetDataByDateAsync(tempSensorUrl, latestDate, latestDate);
+                        }
+
+                    }
+                    else
+                    {
+                        TempDB.Clear();
+                    }
+                    var sortedtemps = temps.OrderBy(aq => aq.date).ToList();
+                    foreach (var temp in sortedtemps)
+                    {
+                        TempDB.Add(temp);
+                    }
+                }                
+                //FillDBWithMockData(TempDB);
+
             }
             catch (Exception ex)
             {
@@ -150,31 +184,7 @@ namespace WeatherEyeApp.ViewModels
             }
         }
 
-        private PlotModel GenerateTempChart()
-        {
-            var model = new PlotModel();
-            var linePm2_5 = new LineSeries()
-            {
-                Color = OxyColor.Parse("#d300a0"),
-                MarkerType = MarkerType.Circle,
-                SeriesGroupName = "Temperature"
-            };
-
-            foreach (var entry in TempDB)
-            {
-                var dataPoint = new DataPoint(DateTimeAxis.ToDouble(entry.date), (double)entry.value);
-                linePm2_5.Points.Add(dataPoint);
-            }
-
-            model.Series.Add(linePm2_5);
-
-            model.Axes.Add(new DateTimeAxis { Position = AxisPosition.Bottom, Title = "Date" });
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Temperature °C" });
-
-
-            return model;
-
-        }
+        
 
     }
 }

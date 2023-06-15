@@ -32,6 +32,13 @@ namespace WeatherEyeApp.Views
             _viewModel.OnAppearing();
         }
 
-        
+        public void HandleToggled(object sender, ToggledEventArgs e)
+        {
+            _viewModel.IsDayNightMode = e.Value;
+            _viewModel.RainmmPlotModel = _viewModel.GenerateSingleChart(_viewModel.IsDayNightMode, "#799eb9", "Rain mm", _viewModel.RainDB);
+            _viewModel.RainDiscPlotModel = _viewModel.GenerateSingleChart(_viewModel.IsDayNightMode, "#ceedff", "Rain", _viewModel.RainDiscreteDB);
+        }
+
+
     }
 }
